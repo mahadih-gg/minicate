@@ -43,7 +43,7 @@ export function ChatLayout() {
 
   return (
     <div
-      className="notebook-grid flex overflow-hidden pb-[env(safe-area-inset-bottom)]"
+      className="chat-surface flex overflow-hidden pb-[env(safe-area-inset-bottom)]"
       style={{ height: "var(--app-height, 100dvh)" }}
     >
       {isMobile ? (

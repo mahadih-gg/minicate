@@ -134,14 +134,14 @@ export function MessageList({
 
   if (messages.length === 0) {
     return (
-      <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-4">
-        <Empty>
+      <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden p-6">
+        <Empty className="max-w-md">
           <EmptyHeader>
             <EmptyMedia variant="default">
-              <SketchChatDoodle className="h-20 w-36" />
+              <SketchChatDoodle className="h-24 w-40" />
             </EmptyMedia>
             <EmptyTitle>No messages yet</EmptyTitle>
-            <EmptyDescription>
+            <EmptyDescription className="font-hand text-base">
               Send the first message to start this conversation.
             </EmptyDescription>
           </EmptyHeader>

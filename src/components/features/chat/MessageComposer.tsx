@@ -73,7 +73,7 @@ export function MessageComposer({
             size="icon"
             aria-label="Send message"
             disabled={!canSend}
-            className="bg-linear-to-br from-brand-cyan via-brand-blue to-brand-violet text-primary-foreground hover:opacity-90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <SendIcon />
           </Button>

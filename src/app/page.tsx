@@ -18,7 +18,8 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <SmoothScroll>
-      <div className="flex min-h-dvh flex-col overflow-x-clip">
+      <div className="relative flex min-h-dvh flex-col overflow-x-clip">
+        <div aria-hidden className="pointer-events-none absolute inset-0 notebook-wash" />
         <LandingNavbar />
         <main className="flex-1">
           <LandingHero />

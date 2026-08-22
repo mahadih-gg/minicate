@@ -1,6 +1,11 @@
 "use client"
 
-import { motion, useReducedMotion, type HTMLMotionProps } from "motion/react"
+import {
+  motion,
+  useReducedMotion,
+  type HTMLMotionProps,
+  type TargetAndTransition,
+} from "motion/react"
 import type { ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
@@ -9,7 +14,7 @@ export type RevealVariant = "up" | "down" | "left" | "right" | "scale" | "blur"
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
-const hiddenByVariant: Record<RevealVariant, object> = {
+const hiddenByVariant: Record<RevealVariant, TargetAndTransition> = {
   up: { opacity: 0, y: 36, filter: "blur(10px)" },
   down: { opacity: 0, y: -28, filter: "blur(8px)" },
   left: { opacity: 0, x: -40, filter: "blur(8px)" },
@@ -18,7 +23,7 @@ const hiddenByVariant: Record<RevealVariant, object> = {
   blur: { opacity: 0, filter: "blur(18px)" },
 }
 
-const visible = {
+const visible: TargetAndTransition = {
   opacity: 1,
   x: 0,
   y: 0,
