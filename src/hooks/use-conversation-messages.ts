@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { getApiErrorMessage, isNetworkFailure } from "@/lib/api/errors"
 import { readCachedMessages } from "@/lib/cache/chat-cache"
@@ -21,7 +21,8 @@ import {
   setMessagesCache,
 } from "@/lib/query/persist"
 import {
-  listConversationMessages,
+  getConversationMessages,
+  MESSAGE_PAGE_SIZE,
   sendMessage as sendMessageRequest,
 } from "@/services/messages.service"
 import type { ChatMessage } from "@/types/message"
@@ -35,6 +36,16 @@ function logSendFailure(caught: unknown): void {
   console.error("Message send failed:", detail)
 }
 
+function oldestServerMessageId(messages: ChatMessage[]): string | null {
+  for (const message of messages) {
+    if (message._id.length > 0) {
+      return message._id
+    }
+  }
+
+  return null
+}
+
 export function useConversationMessages(
   conversationId: string | null,
   currentUserId?: string,
@@ -42,6 +53,18 @@ export function useConversationMessages(
   const queryClient = useQueryClient()
   const inFlightClientIdsRef = useRef(new Set<string>())
   const recoveredPendingRef = useRef(new Set<string>())
+  const loadOlderInFlightRef = useRef(false)
+  const [pagingConversationId, setPagingConversationId] = useState(conversationId)
+  const [hasMore, setHasMore] = useState(false)
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false)
+  const [loadOlderError, setLoadOlderError] = useState<string | null>(null)
+
+  if (conversationId !== pagingConversationId) {
+    setPagingConversationId(conversationId)
+    setHasMore(false)
+    setIsLoadingOlder(false)
+    setLoadOlderError(null)
+  }
 
   const queryKey =
     currentUserId && conversationId
@@ -61,7 +84,12 @@ export function useConversationMessages(
         return []
       }
 
-      const serverMessages = await listConversationMessages(conversationId, signal)
+      const page = await getConversationMessages(
+        { id: conversationId, limit: MESSAGE_PAGE_SIZE },
+        signal,
+      )
+      setHasMore(page.hasMore)
+
       const existing =
         queryClient.getQueryData<ChatMessage[]>(
           queryKeys.messages(currentUserId, conversationId),
@@ -69,7 +97,7 @@ export function useConversationMessages(
         readCachedMessages(currentUserId, conversationId) ??
         []
 
-      const merged = mergeChatHistory(existing, serverMessages)
+      const merged = mergeChatHistory(existing, page.messages)
       persistMessages(currentUserId, conversationId, merged)
       return merged
     },
@@ -231,6 +259,63 @@ export function useConversationMessages(
     [conversationId, currentUserId, messages, persistOutgoing, queryClient],
   )
 
+  const loadOlder = useCallback(async () => {
+    if (!conversationId || !currentUserId || !hasMore || loadOlderInFlightRef.current) {
+      return
+    }
+
+    const before = oldestServerMessageId(messages)
+
+    if (!before) {
+      setHasMore(false)
+      return
+    }
+
+    const requestedConversationId = conversationId
+    loadOlderInFlightRef.current = true
+    setIsLoadingOlder(true)
+    setLoadOlderError(null)
+
+    try {
+      const page = await getConversationMessages({
+        id: conversationId,
+        limit: MESSAGE_PAGE_SIZE,
+        before,
+      })
+
+      if (requestedConversationId !== conversationId) {
+        return
+      }
+
+      setHasMore(page.hasMore)
+
+      if (page.messages.length === 0) {
+        setHasMore(false)
+        return
+      }
+
+      setMessagesCache(queryClient, currentUserId, conversationId, (current) => {
+        const merged = mergeChatHistory(current, page.messages)
+        persistMessages(currentUserId, conversationId, merged)
+        return merged
+      })
+    } catch (caught: unknown) {
+      if (requestedConversationId !== conversationId) {
+        return
+      }
+
+      setLoadOlderError(
+        getApiErrorMessage(caught, "Could not load older messages. Please try again."),
+      )
+    } finally {
+      loadOlderInFlightRef.current = false
+
+      if (requestedConversationId === conversationId) {
+        setIsLoadingOlder(false)
+      }
+    }
+  }, [conversationId, currentUserId, hasMore, messages, queryClient])
+
   const { refetch } = query
 
   const reload = useCallback(() => {
@@ -243,6 +328,10 @@ export function useConversationMessages(
     isLoading: Boolean(conversationId) && !hasCache && query.isPending,
     isSyncing: query.isFetching,
     apiUnreachable: query.isError && isNetworkFailure(query.error),
+    hasMore,
+    isLoadingOlder,
+    loadOlderError,
+    loadOlder,
     send,
     retry,
     reload,

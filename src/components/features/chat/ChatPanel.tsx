@@ -18,6 +18,10 @@ export function ChatPanel() {
     messages,
     isLoading,
     error,
+    hasMore,
+    isLoadingOlder,
+    loadOlderError,
+    loadOlder,
     showBack,
     onBack,
     onRetry,
@@ -39,6 +43,10 @@ export function ChatPanel() {
         messages={messages}
         isLoading={isLoading}
         error={error}
+        hasMore={hasMore}
+        isLoadingOlder={isLoadingOlder}
+        loadOlderError={loadOlderError}
+        onLoadOlder={loadOlder}
         onRetry={onRetry}
         onRetryMessage={onRetryMessage}
       />

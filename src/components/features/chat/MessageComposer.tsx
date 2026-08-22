@@ -52,8 +52,8 @@ export function MessageComposer({
   }
 
   return (
-    <form className="chat-shell-footer w-full" onSubmit={handleSubmit}>
-      <InputGroup className="h-12 items-center border-[1.5px] border-foreground bg-white shadow-[var(--shadow-sketch)] has-[>textarea]:h-12 dark:bg-card">
+    <form className="chat-shell-footer w-full items-end" onSubmit={handleSubmit}>
+      <InputGroup className="h-auto min-h-12 items-end border-[1.5px] border-foreground bg-white shadow-[var(--shadow-sketch)] has-[>textarea]:h-auto dark:bg-card">
         <InputGroupTextarea
           id="message-composer"
           name="message"
@@ -63,11 +63,11 @@ export function MessageComposer({
           placeholder="Write a message"
           value={text}
           disabled={disabled}
-          className="h-10 min-h-10 max-h-10 field-sizing-fixed overflow-y-auto py-2 text-foreground placeholder:text-muted-foreground"
+          className="field-sizing-content max-h-32 min-h-10 overflow-y-auto py-2 text-foreground placeholder:text-muted-foreground"
           onChange={(event) => setText(event.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <InputGroupAddon align="inline-end" className="pr-1.5">
+        <InputGroupAddon align="inline-end" className="pr-1.5 pb-1.5">
           <Button
             type="submit"
             size="icon"
@@ -79,6 +79,9 @@ export function MessageComposer({
           </Button>
         </InputGroupAddon>
       </InputGroup>
+      <p id="message-composer-hint" className="sr-only">
+        Enter to send. Shift+Enter for a new line.
+      </p>
     </form>
   )
 }

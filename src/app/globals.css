@@ -232,12 +232,12 @@
 
 @utility chat-shell-footer {
   display: flex;
-  height: var(--chat-shell-footer);
   min-height: var(--chat-shell-footer);
   flex-shrink: 0;
   align-items: center;
   border-top: 1.5px solid var(--foreground);
   background-color: var(--sidebar);
+  padding-block: 0.5rem;
   padding-inline: 0.5rem;
 }
 

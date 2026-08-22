@@ -3,6 +3,7 @@
 import { memo } from "react"
 
 import { UserAvatar } from "@/components/common/UserAvatar"
+import { Badge } from "@/components/ui/badge"
 import { getConversationAvatarSeed } from "@/lib/avatars/config"
 import {
   formatConversationUpdatedAt,
@@ -15,22 +16,31 @@ import type { Conversation } from "@/types/conversation"
 type ConversationListItemProps = {
   conversation: Conversation
   isSelected: boolean
+  unreadCount?: number
   onSelect: (conversationId: string) => void
 }
 
 export const ConversationListItem = memo(function ConversationListItem({
   conversation,
   isSelected,
+  unreadCount = 0,
   onSelect,
 }: ConversationListItemProps) {
   const title = getConversationTitle(conversation)
   const preview = getConversationPreview(conversation)
   const timestamp = formatConversationUpdatedAt(conversation.updatedAt)
+  const hasUnread = unreadCount > 0
+  const unreadLabel = hasUnread
+    ? `${unreadCount} unread`
+    : undefined
 
   return (
     <button
       type="button"
       aria-current={isSelected ? "true" : undefined}
+      aria-label={
+        hasUnread ? `${title}, ${unreadLabel}` : undefined
+      }
       className={cn(
         "flex w-full min-w-0 items-center gap-3 rounded-[var(--radius-sketch)] border border-transparent px-2 py-2 text-left outline-none transition-[background-color,border-color,box-shadow,transform] duration-150 hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring",
         isSelected &&
@@ -54,8 +64,19 @@ export const ConversationListItem = memo(function ConversationListItem({
             </time>
           ) : null}
         </span>
-        <span className="block truncate text-xs text-muted-foreground">
-          {preview}
+        <span className="flex min-w-0 items-center gap-2">
+          <span className="block min-w-0 flex-1 truncate text-xs text-muted-foreground">
+            {preview}
+          </span>
+          {hasUnread ? (
+            <Badge
+              variant="default"
+              className="shrink-0 bg-brand-blue text-primary-foreground"
+              aria-label={unreadLabel}
+            >
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </Badge>
+          ) : null}
         </span>
       </span>
     </button>

@@ -14,6 +14,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConversationListItem } from "@/components/features/chat/ConversationListItem"
+import { useChatUiStore } from "@/stores/chat-ui"
 import type { Conversation } from "@/types/conversation"
 
 type ConversationListProps = {
@@ -33,6 +34,10 @@ export function ConversationList({
   onRetry,
   onSelect,
 }: ConversationListProps) {
+  const unreadByConversationId = useChatUiStore(
+    (state) => state.unreadByConversationId,
+  )
+
   if (isLoading && conversations.length === 0) {
     return (
       <div className="flex flex-col gap-2 p-2" aria-busy="true" aria-label="Loading conversations">
@@ -81,6 +86,7 @@ export function ConversationList({
             <ConversationListItem
               conversation={conversation}
               isSelected={conversation._id === selectedConversationId}
+              unreadCount={unreadByConversationId[conversation._id] ?? 0}
               onSelect={onSelect}
             />
           </div>

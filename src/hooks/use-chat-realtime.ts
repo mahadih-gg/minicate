@@ -9,12 +9,15 @@ import { applyMessageToConversationList } from "@/lib/conversations/preview"
 import { reconcileServerMessage } from "@/lib/messages/state"
 import { queryKeys } from "@/lib/query/keys"
 import { setConversationsCache, setMessagesCache } from "@/lib/query/persist"
+import { useChatUiStore } from "@/stores/chat-ui"
 import type { Conversation } from "@/types/conversation"
 import type { Message } from "@/types/message"
 
 export function useChatRealtime() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
+  const selectedConversationId = useChatUiStore((state) => state.selectedConversationId)
+  const bumpUnread = useChatUiStore((state) => state.bumpUnread)
 
   const handleIncomingMessage = useCallback(
     (message: Message) => {
@@ -43,8 +46,15 @@ export function useChatRealtime() {
           queryKey: queryKeys.conversations(userId),
         })
       }
+
+      const isActiveConversation = message.conversation === selectedConversationId
+      const isOwnMessage = message.sender === userId
+
+      if (!isActiveConversation && !isOwnMessage) {
+        bumpUnread(message.conversation)
+      }
     },
-    [queryClient, user],
+    [bumpUnread, queryClient, selectedConversationId, user],
   )
 
   return useChatSocket(Boolean(user), handleIncomingMessage)

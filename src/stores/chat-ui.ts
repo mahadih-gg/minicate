@@ -9,6 +9,7 @@ type ChatUiState = {
   pendingUserId: string | null
   startError: string | null
   connectionStatus: ConnectionStatus
+  unreadByConversationId: Record<string, number>
   selectConversation: (conversationId: string) => void
   clearSelection: () => void
   openMobile: () => void
@@ -18,6 +19,9 @@ type ChatUiState = {
   setPendingUserId: (userId: string | null) => void
   setStartError: (error: string | null) => void
   setConnectionStatus: (status: ConnectionStatus) => void
+  bumpUnread: (conversationId: string) => void
+  clearUnread: (conversationId: string) => void
+  clearAllUnread: () => void
 }
 
 function initialConnectionStatus(): ConnectionStatus {
@@ -35,12 +39,19 @@ export const useChatUiStore = create<ChatUiState>((set) => ({
   pendingUserId: null,
   startError: null,
   connectionStatus: initialConnectionStatus(),
+  unreadByConversationId: {},
   selectConversation: (conversationId) =>
-    set({
-      selectedConversationId: conversationId,
-      mobileOpen: false,
-      pendingUserId: null,
-      startError: null,
+    set((current) => {
+      const nextUnread = { ...current.unreadByConversationId }
+      delete nextUnread[conversationId]
+
+      return {
+        selectedConversationId: conversationId,
+        mobileOpen: false,
+        pendingUserId: null,
+        startError: null,
+        unreadByConversationId: nextUnread,
+      }
     }),
   clearSelection: () =>
     set({
@@ -57,4 +68,22 @@ export const useChatUiStore = create<ChatUiState>((set) => ({
     set((current) =>
       current.connectionStatus === status ? current : { connectionStatus: status },
     ),
+  bumpUnread: (conversationId) =>
+    set((current) => ({
+      unreadByConversationId: {
+        ...current.unreadByConversationId,
+        [conversationId]: (current.unreadByConversationId[conversationId] ?? 0) + 1,
+      },
+    })),
+  clearUnread: (conversationId) =>
+    set((current) => {
+      if (!(conversationId in current.unreadByConversationId)) {
+        return current
+      }
+
+      const nextUnread = { ...current.unreadByConversationId }
+      delete nextUnread[conversationId]
+      return { unreadByConversationId: nextUnread }
+    }),
+  clearAllUnread: () => set({ unreadByConversationId: {} }),
 }))

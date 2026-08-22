@@ -33,6 +33,7 @@ export function SidebarProfileMenu() {
   const router = useRouter()
   const { user, signOut } = useAuth()
   const clearSelection = useChatUiStore((state) => state.clearSelection)
+  const clearAllUnread = useChatUiStore((state) => state.clearAllUnread)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   if (!user) {
@@ -42,6 +43,7 @@ export function SidebarProfileMenu() {
   function handleLogout() {
     disconnectChatSocket()
     clearSelection()
+    clearAllUnread()
     signOut()
     setConfirmOpen(false)
     router.replace("/login")

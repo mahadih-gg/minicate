@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState, type FormEvent } from "react"
-import { useRouter } from "next/navigation"
 import { Loader2Icon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState, type FormEvent } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -83,10 +83,10 @@ export function LoginForm() {
 
   if (!isReady) {
     return (
-      <Card className="w-full max-w-md">
+      <Card className="w-full text-base [--card-spacing:--spacing(4)]">
         <CardHeader>
-          <CardTitle>Loading</CardTitle>
-          <CardDescription>Checking your session.</CardDescription>
+          <CardTitle className="text-2xl">Loading</CardTitle>
+          <CardDescription className="text-base">Checking your session.</CardDescription>
         </CardHeader>
       </Card>
     )
@@ -94,26 +94,28 @@ export function LoginForm() {
 
   if (isAuthenticated || isSuccess) {
     return (
-      <Card className="w-full max-w-md">
+      <Card className="w-full text-base [--card-spacing:--spacing(4)]">
         <CardHeader>
-          <CardTitle>You are signed in</CardTitle>
-          <CardDescription>Taking you to your conversations.</CardDescription>
+          <CardTitle className="text-2xl">You are signed in</CardTitle>
+          <CardDescription className="text-base">
+            Taking you to your conversations.
+          </CardDescription>
         </CardHeader>
       </Card>
     )
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full text-base [--card-spacing:--spacing(4)]">
       <CardHeader>
-        <CardTitle className="text-xl">Welcome to Minicate</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-2xl">Welcome to Minicate</CardTitle>
+        <CardDescription className="text-base">
           Enter your phone number and name to continue. New numbers are registered
           automatically.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+        <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
           {apiError ? (
             <Alert variant="destructive">
               <AlertTitle>Could not sign in</AlertTitle>
@@ -121,8 +123,10 @@ export function LoginForm() {
             </Alert>
           ) : null}
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="phone">Phone number</Label>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="phone" className="text-base">
+              Phone number
+            </Label>
             <Input
               id="phone"
               name="phone"
@@ -134,6 +138,7 @@ export function LoginForm() {
               disabled={isSubmitting}
               aria-invalid={Boolean(fieldErrors.phone)}
               aria-describedby={fieldErrors.phone ? "phone-error" : undefined}
+              className="h-12 px-4 text-base md:text-base"
               onChange={(event) => {
                 setPhone(event.target.value)
                 setFieldErrors((current) => ({ ...current, phone: undefined }))
@@ -146,8 +151,10 @@ export function LoginForm() {
             ) : null}
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="name">Name</Label>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="name" className="text-base">
+              Name
+            </Label>
             <Input
               id="name"
               name="name"
@@ -158,6 +165,7 @@ export function LoginForm() {
               disabled={isSubmitting}
               aria-invalid={Boolean(fieldErrors.name)}
               aria-describedby={fieldErrors.name ? "name-error" : undefined}
+              className="h-12 px-4 text-base md:text-base"
               onChange={(event) => {
                 setName(event.target.value)
                 setFieldErrors((current) => ({ ...current, name: undefined }))
@@ -173,7 +181,7 @@ export function LoginForm() {
           <Button
             type="submit"
             size="lg"
-            className="mt-1 w-full bg-linear-to-br from-brand-cyan via-brand-blue to-brand-violet text-primary-foreground hover:opacity-90"
+            className="h-12 w-full bg-linear-to-br from-brand-cyan via-brand-blue to-brand-violet px-4 text-base text-primary-foreground hover:opacity-90"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
