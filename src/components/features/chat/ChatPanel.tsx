@@ -27,6 +27,7 @@ export function ChatPanel() {
     onRetry,
     onRetryMessage,
     onSend,
+    followLatestNonce,
   } = panel
 
   return (
@@ -49,6 +50,7 @@ export function ChatPanel() {
         onLoadOlder={loadOlder}
         onRetry={onRetry}
         onRetryMessage={onRetryMessage}
+        followLatestNonce={followLatestNonce}
       />
       <MessageComposer key={`${conversation._id}-composer`} onSend={onSend} />
     </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { ArrowDownIcon } from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -20,12 +20,34 @@ import {
   MessageScrollerItem,
   MessageScrollerProvider,
   MessageScrollerViewport,
+  useMessageScroller,
 } from "@/components/ui/message-scroller"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { MessageBubble } from "@/components/features/chat/MessageBubble"
 import type { Conversation } from "@/types/conversation"
 import type { ChatMessage } from "@/types/message"
+
+function FollowLatestOnSend({ nonce }: { nonce: number }) {
+  const { scrollToEnd } = useMessageScroller()
+  const handledNonceRef = useRef(nonce)
+
+  useLayoutEffect(() => {
+    if (nonce === handledNonceRef.current) {
+      return
+    }
+
+    handledNonceRef.current = nonce
+
+    if (nonce === 0) {
+      return
+    }
+
+    scrollToEnd({ behavior: "smooth" })
+  }, [nonce, scrollToEnd])
+
+  return null
+}
 
 type MessageListProps = {
   conversation: Conversation
@@ -39,6 +61,7 @@ type MessageListProps = {
   onLoadOlder?: () => void
   onRetry: () => void
   onRetryMessage?: (clientMessageId: string) => void
+  followLatestNonce?: number
 }
 
 export function MessageList({
@@ -53,6 +76,7 @@ export function MessageList({
   onLoadOlder,
   onRetry,
   onRetryMessage,
+  followLatestNonce = 0,
 }: MessageListProps) {
   const sentinelRef = useRef<HTMLDivElement>(null)
   const [scrollAnchorId, setScrollAnchorId] = useState<string | null>(null)
@@ -150,14 +174,24 @@ export function MessageList({
     )
   }
 
+  let lastOwnClientMessageId: string | null = null
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const item = messages[index]
+    if (item && item.sender === currentUserId) {
+      lastOwnClientMessageId = item.clientMessageId
+      break
+    }
+  }
+
   return (
     <MessageScrollerProvider
       autoScroll
       defaultScrollPosition="end"
       scrollEdgeThreshold={80}
     >
+      <FollowLatestOnSend nonce={followLatestNonce} />
       <MessageScroller className="min-h-0 flex-1">
-        <MessageScrollerViewport aria-label="Messages">
+        <MessageScrollerViewport aria-label="Messages" className="[overflow-anchor:none]">
           <MessageScrollerContent className="flex flex-col gap-4 overflow-x-hidden px-2 py-4">
             <div
               ref={sentinelRef}
@@ -191,6 +225,9 @@ export function MessageList({
                   message={message}
                   conversation={conversation}
                   currentUserId={currentUserId}
+                  isLastOwnMessage={
+                    message.clientMessageId === lastOwnClientMessageId
+                  }
                   onRetry={onRetryMessage}
                 />
               </MessageScrollerItem>

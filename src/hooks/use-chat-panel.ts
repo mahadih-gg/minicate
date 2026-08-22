@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useSyncExternalStore } from "react"
+import { useCallback, useState, useSyncExternalStore } from "react"
 
 import { useAuth } from "@/hooks/use-auth"
 import { useConversationMessages } from "@/hooks/use-conversation-messages"
@@ -30,6 +30,7 @@ export function useChatPanel() {
   )
   const selectedConversationId = useChatUiStore((state) => state.selectedConversationId)
   const clearSelection = useChatUiStore((state) => state.clearSelection)
+  const [followLatestNonce, setFollowLatestNonce] = useState(0)
 
   const { conversations } = useConversations(user?._id)
 
@@ -55,7 +56,9 @@ export function useChatPanel() {
 
   const handleSend = useCallback(
     (text: string) => {
-      send(text)
+      if (send(text)) {
+        setFollowLatestNonce((current) => current + 1)
+      }
     },
     [send],
   )
@@ -79,5 +82,6 @@ export function useChatPanel() {
     onRetry: reload,
     onRetryMessage: retry,
     onSend: handleSend,
+    followLatestNonce,
   }
 }

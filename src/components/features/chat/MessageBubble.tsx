@@ -23,6 +23,7 @@ type MessageBubbleProps = {
   message: ChatMessage
   conversation: Conversation
   currentUserId: string
+  isLastOwnMessage?: boolean
   onRetry?: (clientMessageId: string) => void
 }
 
@@ -44,7 +45,7 @@ function SendStatus({
   if (status === "sent") {
     return (
       <span className="font-hand text-xs text-muted-foreground" aria-label="Sent">
-        Sent ✓
+        ✓
       </span>
     )
   }
@@ -70,6 +71,7 @@ export const MessageBubble = memo(function MessageBubble({
   message,
   conversation,
   currentUserId,
+  isLastOwnMessage = false,
   onRetry,
 }: MessageBubbleProps) {
   const isOwnMessage = message.sender === currentUserId
@@ -77,7 +79,11 @@ export const MessageBubble = memo(function MessageBubble({
   const ownershipLabel = getMessageOwnershipLabel(isOwnMessage, senderName)
   const timestamp = formatMessageTimestamp(message.createdAt)
   const align = isOwnMessage ? "end" : "start"
-  const showLocalStatus = isOwnMessage && message.clientMessageId !== message._id
+  const showSendStatus =
+    isOwnMessage &&
+    (message.status === "sending" ||
+      message.status === "failed" ||
+      (message.status === "sent" && isLastOwnMessage))
 
   return (
     <Message
@@ -109,7 +115,7 @@ export const MessageBubble = memo(function MessageBubble({
               {timestamp}
             </time>
           ) : null}
-          {showLocalStatus ? (
+          {showSendStatus ? (
             <SendStatus
               status={message.status}
               onRetry={() => onRetry?.(message.clientMessageId)}

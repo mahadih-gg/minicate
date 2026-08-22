@@ -52,7 +52,10 @@ export function MessageComposer({
   }
 
   return (
-    <form className="chat-shell-footer w-full items-end" onSubmit={handleSubmit}>
+    <form
+      className="chat-shell-footer w-full items-end [overflow-anchor:none]"
+      onSubmit={handleSubmit}
+    >
       <InputGroup className="h-auto min-h-12 items-end border-[1.5px] border-foreground bg-white shadow-[var(--shadow-sketch)] has-[>textarea]:h-auto dark:bg-card">
         <InputGroupTextarea
           id="message-composer"
