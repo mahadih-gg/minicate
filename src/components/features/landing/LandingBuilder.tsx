@@ -133,9 +133,6 @@ export function LandingBuilder() {
                     className="h-auto w-full rounded-[22px_14px_26px_16px] object-contain"
                   />
                 </div>
-                <figcaption className="mt-4 text-center font-hand text-base text-muted-foreground lg:text-lg">
-                  {LANDING_BUILDER.name}
-                </figcaption>
               </figure>
             </RevealFloat>
           </Reveal>
@@ -146,7 +143,12 @@ export function LandingBuilder() {
           >
             <SketchStar className="absolute -top-2 right-4 size-4 opacity-40 lg:right-auto lg:-left-2" />
             <RevealItem variant="left">
-              <p className="font-hand text-lg text-foreground/80 sm:text-xl">
+              <p className="font-heading text-3xl leading-tight tracking-tight text-foreground sm:text-4xl">
+                {LANDING_BUILDER.name}
+              </p>
+            </RevealItem>
+            <RevealItem variant="left">
+              <p className="mt-2 font-hand text-lg text-foreground/80 sm:text-xl">
                 <Highlighter
                   action="underline"
                   color="var(--brand-violet)"
