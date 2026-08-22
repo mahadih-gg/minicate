@@ -6,6 +6,24 @@ export function isAbortError(error: unknown): boolean {
     : error instanceof Error && error.name === "AbortError"
 }
 
+export function isNetworkFailure(error: unknown): boolean {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return true
+  }
+
+  if (error instanceof ApiError) {
+    return false
+  }
+
+  if (error instanceof TypeError) {
+    return true
+  }
+
+  return (
+    error instanceof Error && /failed to fetch|networkerror|load failed/i.test(error.message)
+  )
+}
+
 export function getApiErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof ApiError) {
     if (error.status >= 500) {

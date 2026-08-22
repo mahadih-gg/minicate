@@ -2,9 +2,9 @@
 
 import { UsersIcon } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import { ConversationList } from "@/components/features/chat/ConversationList"
 import { ConversationSearch } from "@/components/features/chat/ConversationSearch"
+import { Button } from "@/components/ui/button"
 import type { Conversation } from "@/types/conversation"
 import type { PublicUser } from "@/types/user"
 

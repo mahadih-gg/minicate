@@ -1,8 +1,12 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { MenuIcon, MessagesSquareIcon } from "lucide-react"
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react"
 
+import { ChatPanel } from "@/components/features/chat/ChatPanel"
+import { ConnectionStatus } from "@/components/features/chat/ConnectionStatus"
+import { ConversationSidebar } from "@/components/features/chat/ConversationSidebar"
+import { CreateGroupDialog } from "@/components/features/chat/CreateGroupDialog"
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -18,21 +22,15 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import { ChatPanel } from "@/components/features/chat/ChatPanel"
-import { ConnectionStatus } from "@/components/features/chat/ConnectionStatus"
-import { ConversationSidebar } from "@/components/features/chat/ConversationSidebar"
-import { CreateGroupDialog } from "@/components/features/chat/CreateGroupDialog"
 import { useAuth } from "@/hooks/use-auth"
-import { useChatSocket } from "@/hooks/useChatSocket"
+import { useCachedConversations } from "@/hooks/use-cached-conversations"
 import { useConversationMessages } from "@/hooks/use-conversation-messages"
-import { getApiErrorMessage, isAbortError } from "@/lib/api/errors"
+import { useOnlineStatus } from "@/hooks/use-online-status"
+import { useChatSocket } from "@/hooks/useChatSocket"
+import { getApiErrorMessage } from "@/lib/api/errors"
 import { applyMessageToConversationList } from "@/lib/conversations/preview"
-import {
-  listConversations,
-  startDirectConversation,
-} from "@/services/conversations.service"
 import { cn } from "@/lib/utils"
-import type { Conversation } from "@/types/conversation"
+import { startDirectConversation } from "@/services/conversations.service"
 import type { Message } from "@/types/message"
 import type { PublicUser } from "@/types/user"
 
@@ -52,15 +50,22 @@ function getServerMobileSnapshot() {
 
 export function ChatLayout() {
   const { user } = useAuth()
+  const isOnline = useOnlineStatus()
   const isMobile = useSyncExternalStore(
     subscribeToMobile,
     getMobileSnapshot,
     getServerMobileSnapshot,
   )
-  const [conversations, setConversations] = useState<Conversation[]>([])
+  const {
+    conversations,
+    isLoading,
+    isSyncing: conversationsSyncing,
+    error,
+    apiUnreachable: conversationsUnreachable,
+    updateConversations,
+    refresh: refreshConversations,
+  } = useCachedConversations(user?._id)
   const conversationsRef = useRef(conversations)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(
     null,
   )
@@ -72,11 +77,12 @@ export function ChatLayout() {
     messages,
     error: messagesError,
     isLoading: messagesLoading,
+    isSyncing: messagesSyncing,
+    apiUnreachable: messagesUnreachable,
     send,
     retry,
     reload,
     upsertIncoming,
-    hasConversationCache,
   } = useConversationMessages(selectedConversationId, user?._id)
 
   useEffect(() => {
@@ -85,39 +91,28 @@ export function ChatLayout() {
 
   const handleIncomingMessage = useCallback(
     (message: Message) => {
-      if (
-        message.conversation === selectedConversationId ||
-        hasConversationCache(message.conversation)
-      ) {
-        upsertIncoming(message)
-      }
-
-      setConversations((current) => applyMessageToConversationList(current, message))
+      upsertIncoming(message)
+      updateConversations((current) => applyMessageToConversationList(current, message))
 
       const isKnown = conversationsRef.current.some(
         (conversation) => conversation._id === message.conversation,
       )
 
       if (!isKnown) {
-        void listConversations()
-          .then((nextConversations) => {
-            setConversations(nextConversations)
-          })
-          .catch(() => {
-            return
-          })
+        void refreshConversations().catch(() => {
+          return
+        })
       }
     },
-    [hasConversationCache, selectedConversationId, upsertIncoming],
+    [refreshConversations, updateConversations, upsertIncoming],
   )
 
   const socketStatus = useChatSocket(Boolean(user), handleIncomingMessage)
-
-  const refreshConversations = useCallback(async (signal?: AbortSignal) => {
-    const nextConversations = await listConversations(signal)
-    setConversations(nextConversations)
-    return nextConversations
-  }, [])
+  const isOffline =
+    !isOnline ||
+    conversationsUnreachable ||
+    (Boolean(selectedConversationId) && messagesUnreachable)
+  const isSyncing = conversationsSyncing || messagesSyncing
 
   useEffect(() => {
     const viewport = window.visualViewport
@@ -139,46 +134,11 @@ export function ChatLayout() {
     }
   }, [])
 
-  useEffect(() => {
-    const controller = new AbortController()
-
-    void (async () => {
-      try {
-        await refreshConversations(controller.signal)
-        setError(null)
-      } catch (caught: unknown) {
-        if (isAbortError(caught) || controller.signal.aborted) {
-          return
-        }
-
-        setError(
-          getApiErrorMessage(
-            caught,
-            "Could not load conversations. Please try again.",
-          ),
-        )
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false)
-        }
-      }
-    })()
-
-    return () => controller.abort()
-  }, [refreshConversations])
-
   async function handleRetry() {
-    setIsLoading(true)
-    setError(null)
-
     try {
       await refreshConversations()
-    } catch (caught: unknown) {
-      setError(
-        getApiErrorMessage(caught, "Could not load conversations. Please try again."),
-      )
-    } finally {
-      setIsLoading(false)
+    } catch {
+      return
     }
   }
 
@@ -215,7 +175,7 @@ export function ChatLayout() {
   }
 
   function handleMessageSent(message: Message) {
-    setConversations((current) => applyMessageToConversationList(current, message))
+    updateConversations((current) => applyMessageToConversationList(current, message))
   }
 
   function handleSend(text: string) {
@@ -303,6 +263,8 @@ export function ChatLayout() {
             error={messagesError}
             socketStatus={socketStatus}
             showBack={isMobile}
+            isOffline={isOffline}
+            isSyncing={isSyncing}
             onBack={handleBackToConversations}
             onRetry={reload}
             onRetryMessage={retry}
@@ -324,7 +286,11 @@ export function ChatLayout() {
               ) : null}
               <h1 className="truncate text-sm font-medium">Minicate</h1>
               <div className="ml-auto">
-                <ConnectionStatus status={socketStatus} />
+                <ConnectionStatus
+                  status={socketStatus}
+                  isOffline={isOffline}
+                  isSyncing={isSyncing}
+                />
               </div>
             </header>
             <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-6">

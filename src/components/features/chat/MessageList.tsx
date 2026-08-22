@@ -58,7 +58,7 @@ export function MessageList({
     )
   }
 
-  if (error) {
+  if (error && messages.length === 0) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-4">
         <div className="flex w-full max-w-sm flex-col gap-3">
@@ -100,12 +100,11 @@ export function MessageList({
     >
       <MessageScroller className="min-h-0 flex-1">
         <MessageScrollerViewport aria-label="Messages">
-          <MessageScrollerContent className="gap-3 overflow-x-hidden px-4 py-4">
+          <MessageScrollerContent className="flex flex-col gap-3 overflow-x-hidden px-4 py-4">
             {messages.map((message) => (
               <MessageScrollerItem
                 key={message.clientMessageId}
                 messageId={message.clientMessageId}
-                scrollAnchor={message.sender === currentUserId}
               >
                 <MessageBubble
                   message={message}

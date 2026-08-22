@@ -122,6 +122,24 @@ export function confirmOptimisticMessage(
   return reconcileServerMessage(messages, server)
 }
 
+export function appendChatMessage(
+  messages: ChatMessage[],
+  incoming: ChatMessage,
+): ChatMessage[] {
+  if (
+    incoming._id &&
+    messages.some((message) => message._id === incoming._id)
+  ) {
+    return messages
+  }
+
+  if (messages.some((message) => message.clientMessageId === incoming.clientMessageId)) {
+    return messages
+  }
+
+  return [...messages, incoming]
+}
+
 export function upsertMessage(messages: Message[], incoming: Message): Message[] {
   if (messages.some((message) => message._id === incoming._id)) {
     return messages
@@ -155,7 +173,7 @@ export function reconcileServerMessage(
     return replaceAt(messages, pendingIndex, server, "sent")
   }
 
-  return sortChatMessagesChronologically([...messages, toChatMessage(server)])
+  return appendChatMessage(messages, toChatMessage(server))
 }
 
 export function mergeChatHistory(

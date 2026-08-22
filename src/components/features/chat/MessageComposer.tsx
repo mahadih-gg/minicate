@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, type FormEvent, type KeyboardEvent } from "react"
 import { SendIcon } from "lucide-react"
+import { useState, type FormEvent, type KeyboardEvent } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -82,9 +82,6 @@ export function MessageComposer({
           </Button>
         </InputGroupAddon>
       </InputGroup>
-      <p id="message-composer-hint" className="text-xs text-muted-foreground">
-        Enter to send. Shift+Enter for a new line.
-      </p>
     </form>
   )
 }

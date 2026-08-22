@@ -1,5 +1,6 @@
 "use client"
 
+import { Spinner } from "@/components/ui/spinner"
 import { getAccessToken } from "@/lib/auth/session"
 import { connectChatSocket } from "@/lib/websocket/client"
 import { cn } from "@/lib/utils"
@@ -14,18 +15,28 @@ const STATUS_LABEL: Record<ChatSocketStatus, string> = {
 
 type ConnectionStatusProps = {
   status: ChatSocketStatus
+  isOffline?: boolean
+  isSyncing?: boolean
 }
 
-export function ConnectionStatus({ status }: ConnectionStatusProps) {
-  const label = STATUS_LABEL[status]
-  const canRetry = status === "disconnected"
+export function ConnectionStatus({
+  status,
+  isOffline = false,
+  isSyncing = false,
+}: ConnectionStatusProps) {
+  const label = isOffline ? "Offline" : isSyncing ? "Updating" : STATUS_LABEL[status]
+  const canRetry = isOffline || status === "disconnected"
 
   return (
     <button
       type="button"
       disabled={!canRetry}
       aria-label={
-        canRetry ? "Realtime is offline. Retry connection." : `Realtime status: ${label}`
+        canRetry
+          ? "Connection is offline. Retry connection."
+          : isSyncing
+            ? "Updating cached conversations"
+            : `Realtime status: ${label}`
       }
       className={cn(
         "inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-xs text-muted-foreground outline-none",
@@ -43,17 +54,27 @@ export function ConnectionStatus({ status }: ConnectionStatusProps) {
         }
       }}
     >
-      <span
-        aria-hidden="true"
-        className={cn(
-          "size-1.5 shrink-0 rounded-full",
-          status === "connected" && "bg-primary",
-          status === "connecting" && "bg-muted-foreground",
-          status === "reconnecting" && "bg-accent-foreground",
-          status === "disconnected" && "bg-destructive",
+      {isSyncing && !isOffline ? (
+        <Spinner className="size-3" aria-hidden="true" />
+      ) : (
+        <span
+          aria-hidden="true"
+          className={cn(
+            "size-1.5 shrink-0 rounded-full",
+            !isOffline && status === "connected" && "bg-primary",
+            !isOffline && status === "connecting" && "bg-muted-foreground",
+            !isOffline && status === "reconnecting" && "bg-accent-foreground",
+            (isOffline || status === "disconnected") && "bg-destructive",
+          )}
+        />
+      )}
+      <span aria-live="polite">
+        {status === "connected" && !isOffline && !isSyncing ? (
+          <span className="sr-only">{label}</span>
+        ) : (
+          label
         )}
-      />
-      <span aria-live="polite">{status === "connected" ? <span className="sr-only">{label}</span> : label}</span>
+      </span>
     </button>
   )
 }

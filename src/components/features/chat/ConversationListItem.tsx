@@ -1,11 +1,11 @@
 "use client"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { UserAvatar } from "@/components/common/UserAvatar"
+import { getConversationAvatarSeed } from "@/lib/avatars/config"
 import {
   formatConversationUpdatedAt,
   getConversationPreview,
   getConversationTitle,
-  getInitials,
 } from "@/lib/conversations/display"
 import { cn } from "@/lib/utils"
 import type { Conversation } from "@/types/conversation"
@@ -35,9 +35,10 @@ export function ConversationListItem({
       )}
       onClick={() => onSelect(conversation._id)}
     >
-      <Avatar>
-        <AvatarFallback>{getInitials(title)}</AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        seed={getConversationAvatarSeed(conversation)}
+        label={title}
+      />
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline justify-between gap-2">
           <span className="truncate text-sm font-medium">{title}</span>

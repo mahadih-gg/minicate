@@ -15,6 +15,8 @@ type ChatPanelProps = {
   error: string | null
   socketStatus: ChatSocketStatus
   showBack?: boolean
+  isOffline?: boolean
+  isSyncing?: boolean
   onBack?: () => void
   onRetry: () => void
   onRetryMessage: (clientMessageId: string) => void
@@ -29,6 +31,8 @@ export function ChatPanel({
   error,
   socketStatus,
   showBack,
+  isOffline,
+  isSyncing,
   onBack,
   onRetry,
   onRetryMessage,
@@ -40,6 +44,8 @@ export function ChatPanel({
         conversation={conversation}
         showBack={showBack}
         socketStatus={socketStatus}
+        isOffline={isOffline}
+        isSyncing={isSyncing}
         onBack={onBack}
       />
       <MessageList

@@ -1,8 +1,8 @@
 "use client"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { UserAvatar } from "@/components/common/UserAvatar"
 import { Spinner } from "@/components/ui/spinner"
-import { getInitials } from "@/lib/conversations/display"
+import { getAvatarSeed } from "@/lib/avatars/config"
 import { cn } from "@/lib/utils"
 import type { PublicUser } from "@/types/user"
 
@@ -36,9 +36,7 @@ export function UserSearchResult({
       )}
       onClick={() => onSelect(user)}
     >
-      <Avatar size="sm">
-        <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-      </Avatar>
+      <UserAvatar seed={getAvatarSeed(user._id)} label={user.name} size="sm" />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium">{user.name}</span>
         <span className="block truncate text-xs text-muted-foreground">

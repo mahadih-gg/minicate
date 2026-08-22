@@ -33,7 +33,7 @@ export function ConversationList({
   onRetry,
   onSelect,
 }: ConversationListProps) {
-  if (isLoading) {
+  if (isLoading && conversations.length === 0) {
     return (
       <div className="flex flex-col gap-2 p-2" aria-busy="true" aria-label="Loading conversations">
         <Skeleton className="h-14 w-full" />
@@ -43,7 +43,7 @@ export function ConversationList({
     )
   }
 
-  if (error) {
+  if (error && conversations.length === 0) {
     return (
       <div className="p-3">
         <Alert variant="destructive">
