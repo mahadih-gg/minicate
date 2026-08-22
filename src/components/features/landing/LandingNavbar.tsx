@@ -1,6 +1,7 @@
 "use client"
 
 import { ArrowRightIcon, MenuIcon } from "lucide-react"
+import { motion, useReducedMotion } from "motion/react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
@@ -24,9 +25,15 @@ import {
 
 export function LandingNavbar() {
   const [open, setOpen] = useState(false)
+  const reduceMotion = useReducedMotion()
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 w-full">
+    <motion.header
+      className="fixed inset-x-0 top-0 z-40 w-full"
+      initial={reduceMotion ? false : { y: -28, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+    >
       <div className="relative">
         <NavbarProgressiveBlur />
         <div className="container-fluid relative z-10 flex items-center gap-3 py-3">
@@ -118,6 +125,6 @@ export function LandingNavbar() {
           </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   )
 }

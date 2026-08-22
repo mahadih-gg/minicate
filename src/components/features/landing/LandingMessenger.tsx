@@ -12,6 +12,12 @@ import {
   LANDING_MESSENGER,
 } from "@/components/features/landing/hero"
 import { MessengerVisualSlot } from "@/components/features/landing/MessengerVisualSlot"
+import {
+  Reveal,
+  RevealFloat,
+  RevealGroup,
+  RevealItem,
+} from "@/components/features/landing/Reveal"
 import { ReviewSlider } from "@/components/features/landing/ReviewSlider"
 import { Highlighter } from "@/components/ui/highlighter"
 
@@ -27,7 +33,11 @@ export function LandingMessenger() {
       <SketchHeart className="absolute right-8 bottom-8 size-10 opacity-50 max-md:hidden" />
 
       <div className="container-fluid grid items-center gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)] lg:gap-8">
-        <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+        <RevealGroup
+          className="flex flex-col items-center text-center lg:items-start lg:text-left"
+          stagger={0.12}
+        >
+          <RevealItem variant="left">
           <h2
             id="messenger-heading"
             className="font-heading text-4xl leading-[1.08] tracking-tight text-foreground sm:text-5xl"
@@ -47,11 +57,15 @@ export function LandingMessenger() {
               </Highlighter>
             </span>
           </h2>
+          </RevealItem>
 
+          <RevealItem variant="left">
           <p className="mt-5 max-w-md font-hand text-lg leading-snug text-foreground/80 sm:text-xl">
             {LANDING_MESSENGER.supporting}
           </p>
+          </RevealItem>
 
+          <RevealItem variant="left">
           <div className="mt-8 flex flex-col items-center gap-3 lg:items-start">
             <Link
               href={LANDING_COPY.secondaryCtaHref}
@@ -65,11 +79,16 @@ export function LandingMessenger() {
               {LANDING_MESSENGER.ctaHint}
             </p>
           </div>
-        </div>
+          </RevealItem>
+        </RevealGroup>
 
-        <MessengerVisualSlot />
+        <Reveal variant="scale" delay={0.12}>
+          <RevealFloat>
+            <MessengerVisualSlot />
+          </RevealFloat>
+        </Reveal>
 
-        <div className="flex min-w-0 flex-col gap-6">
+        <Reveal variant="right" delay={0.18} className="flex min-w-0 flex-col gap-6">
           <p className="text-center font-hand text-2xl text-foreground lg:text-left">
             {LANDING_MESSENGER.reviewsTitlePrefix}
             <Highlighter
@@ -86,7 +105,7 @@ export function LandingMessenger() {
             {LANDING_MESSENGER.reviewsTitleSuffix}
           </p>
           <ReviewSlider />
-        </div>
+        </Reveal>
       </div>
     </section>
   )

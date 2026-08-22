@@ -8,6 +8,7 @@ import {
   SketchStar,
 } from "@/components/common/sketch-marks"
 import { LANDING_FEATURES } from "@/components/features/landing/hero"
+import { Reveal } from "@/components/features/landing/Reveal"
 
 export function LandingFeatures() {
   return (
@@ -20,6 +21,7 @@ export function LandingFeatures() {
       <SketchStar className="absolute right-6 bottom-10 size-6 opacity-30 max-sm:hidden" />
 
       <div className="container-fluid flex flex-col gap-10 lg:gap-14">
+        <Reveal variant="left">
         <div className="flex items-center gap-3">
           <SketchArrow className="hidden h-5 w-12 shrink-0 sm:block" />
           <h2
@@ -30,14 +32,16 @@ export function LandingFeatures() {
           </h2>
           <SketchRule className="min-w-0 flex-1 opacity-70" />
         </div>
+        </Reveal>
 
         <ul className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0">
           {LANDING_FEATURES.map((feature, index) => {
             const isLast = index === LANDING_FEATURES.length - 1
 
             return (
-              <li
-                key={feature.title}
+              <li key={feature.title}>
+              <Reveal delay={index * 0.12} variant="up">
+              <article
                 className="relative flex flex-col items-center px-2 text-center sm:px-6 lg:px-8"
               >
                 {!isLast ? (
@@ -61,6 +65,8 @@ export function LandingFeatures() {
                   {feature.description}
                 </p>
                 <SketchScribble className="mt-5 h-4 w-16 opacity-70" />
+              </article>
+              </Reveal>
               </li>
             )
           })}
