@@ -4,8 +4,6 @@ import { useCallback, useEffect, useSyncExternalStore } from "react"
 
 import { useAuth } from "@/hooks/use-auth"
 import { useChatRealtime } from "@/hooks/use-chat-realtime"
-import { useConversations } from "@/hooks/use-conversations"
-import { useOnlineStatus } from "@/hooks/use-online-status"
 import { useChatUiStore } from "@/stores/chat-ui"
 
 function subscribeToMobile(onStoreChange: () => void) {
@@ -24,7 +22,6 @@ function getServerMobileSnapshot() {
 
 export function useChatShell() {
   const { user } = useAuth()
-  const isOnline = useOnlineStatus()
   const isMobile = useSyncExternalStore(
     subscribeToMobile,
     getMobileSnapshot,
@@ -35,10 +32,8 @@ export function useChatShell() {
   const setMobileOpen = useChatUiStore((state) => state.setMobileOpen)
   const openMobile = useChatUiStore((state) => state.openMobile)
 
-  const { apiUnreachable: conversationsUnreachable, isSyncing: conversationsSyncing } =
-    useConversations(user?._id)
-
-  const socketStatus = useChatRealtime()
+  // Owns the single authenticated WebSocket lifecycle for chat realtime.
+  useChatRealtime()
 
   useEffect(() => {
     const viewport = window.visualViewport
@@ -72,17 +67,12 @@ export function useChatShell() {
   )
 
   const sheetOpen = isMobile && (!selectedConversationId || mobileOpen)
-  const isOffline = !isOnline || conversationsUnreachable
-  const isSyncing = conversationsSyncing
 
   return {
     user,
     isMobile,
     sheetOpen,
     selectedConversationId,
-    socketStatus,
-    isOffline,
-    isSyncing,
     openMobile,
     handleMobileSheetChange,
   }

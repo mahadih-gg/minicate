@@ -18,10 +18,7 @@ export function ChatPanel() {
     messages,
     isLoading,
     error,
-    socketStatus,
     showBack,
-    isOffline,
-    isSyncing,
     onBack,
     onRetry,
     onRetryMessage,
@@ -33,9 +30,6 @@ export function ChatPanel() {
       <ChatHeader
         conversation={conversation}
         showBack={showBack}
-        socketStatus={socketStatus}
-        isOffline={isOffline}
-        isSyncing={isSyncing}
         onBack={onBack}
       />
       <MessageList

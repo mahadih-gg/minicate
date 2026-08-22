@@ -11,6 +11,7 @@ import {
   confirmOptimisticMessage,
   createOptimisticMessage,
   mergeChatHistory,
+  normalizeChatMessages,
   setChatMessageStatus,
 } from "@/lib/messages/state"
 import { queryKeys } from "@/lib/query/keys"
@@ -39,8 +40,13 @@ export function useConversationMessages(
   currentUserId?: string,
 ) {
   const queryClient = useQueryClient()
-  const retriedIdsRef = useRef(new Set<string>())
+  const inFlightClientIdsRef = useRef(new Set<string>())
   const recoveredPendingRef = useRef(new Set<string>())
+
+  const queryKey =
+    currentUserId && conversationId
+      ? queryKeys.messages(currentUserId, conversationId)
+      : (["messages", "idle"] as const)
 
   const cached =
     currentUserId && conversationId
@@ -49,10 +55,7 @@ export function useConversationMessages(
   const hasCache = cached !== null
 
   const query = useQuery({
-    queryKey:
-      currentUserId && conversationId
-        ? queryKeys.messages(currentUserId, conversationId)
-        : ["messages", "idle"],
+    queryKey,
     queryFn: async ({ signal }) => {
       if (!conversationId || !currentUserId) {
         return []
@@ -63,21 +66,22 @@ export function useConversationMessages(
         queryClient.getQueryData<ChatMessage[]>(
           queryKeys.messages(currentUserId, conversationId),
         ) ??
-        cached ??
+        readCachedMessages(currentUserId, conversationId) ??
         []
+
       const merged = mergeChatHistory(existing, serverMessages)
       persistMessages(currentUserId, conversationId, merged)
       return merged
     },
     enabled: Boolean(conversationId && currentUserId),
-    initialData: cached ?? undefined,
+    initialData: cached ? normalizeChatMessages(cached) : undefined,
     initialDataUpdatedAt: hasCache ? 0 : undefined,
     staleTime: 0,
     refetchOnWindowFocus: false,
   })
 
   const messages = useMemo(
-    () => (conversationId ? (query.data ?? []) : []),
+    () => (conversationId ? normalizeChatMessages(query.data ?? []) : []),
     [conversationId, query.data],
   )
   const errorMessage = query.error
@@ -92,6 +96,8 @@ export function useConversationMessages(
       })
     },
     onSuccess: (sent, optimistic) => {
+      inFlightClientIdsRef.current.delete(optimistic.clientMessageId)
+
       if (!currentUserId) {
         return
       }
@@ -104,6 +110,7 @@ export function useConversationMessages(
       )
     },
     onError: (caught, optimistic) => {
+      inFlightClientIdsRef.current.delete(optimistic.clientMessageId)
       logSendFailure(caught)
 
       if (!currentUserId) {
@@ -126,6 +133,11 @@ export function useConversationMessages(
 
   const persistOutgoing = useCallback(
     (optimistic: ChatMessage) => {
+      if (inFlightClientIdsRef.current.has(optimistic.clientMessageId)) {
+        return
+      }
+
+      inFlightClientIdsRef.current.add(optimistic.clientMessageId)
       mutateSend(optimistic)
     },
     [mutateSend],
@@ -141,11 +153,6 @@ export function useConversationMessages(
         continue
       }
 
-      if (retriedIdsRef.current.has(message.clientMessageId)) {
-        continue
-      }
-
-      retriedIdsRef.current.add(message.clientMessageId)
       persistOutgoing(message)
     }
   }, [conversationId, currentUserId, persistOutgoing, query.data, query.isSuccess])
@@ -214,6 +221,7 @@ export function useConversationMessages(
         return
       }
 
+      inFlightClientIdsRef.current.delete(clientMessageId)
       const next: ChatMessage = { ...target, status: "sending" }
       setMessagesCache(queryClient, currentUserId, conversationId, (current) =>
         setChatMessageStatus(current, clientMessageId, "sending"),

@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query"
 import { useState, type ReactNode } from "react"
 
 import { AuthProvider } from "@/components/features/auth/auth-provider"
+import { ConnectionTracker } from "@/components/providers/connection-tracker"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { makeQueryClient } from "@/lib/query/client"
 
@@ -12,6 +13,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ConnectionTracker />
       <AuthProvider>
         <TooltipProvider>{children}</TooltipProvider>
       </AuthProvider>

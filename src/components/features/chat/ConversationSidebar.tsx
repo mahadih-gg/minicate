@@ -4,6 +4,7 @@ import { UsersIcon } from "lucide-react"
 
 import { ConversationList } from "@/components/features/chat/ConversationList"
 import { ConversationSearch } from "@/components/features/chat/ConversationSearch"
+import { SidebarProfileMenu } from "@/components/features/chat/SidebarProfileMenu"
 import { Button } from "@/components/ui/button"
 import { useConversationSidebar } from "@/hooks/use-conversation-sidebar"
 
@@ -61,6 +62,9 @@ export function ConversationSidebar() {
           onRetry={onRetry}
           onSelect={onSelect}
         />
+      </div>
+      <div className="shrink-0 border-t p-2">
+        <SidebarProfileMenu />
       </div>
     </div>
   )

@@ -1,33 +1,58 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useEffect, useState } from "react"
 
-import { Spinner } from "@/components/ui/spinner"
-import { getAccessToken } from "@/lib/auth/session"
-import { connectChatSocket } from "@/lib/websocket/client"
+import { retryConnection } from "@/lib/connection/tracker"
 import { cn } from "@/lib/utils"
-import type { ChatSocketStatus } from "@/lib/websocket/types"
+import { useChatUiStore } from "@/stores/chat-ui"
+import type { ConnectionStatus as ConnectionStatusValue } from "@/types/connection"
 
-const STATUS_LABEL: Record<ChatSocketStatus, string> = {
-  connected: "Live",
-  connecting: "Connecting",
-  reconnecting: "Reconnecting",
-  disconnected: "Offline",
+const CONNECTED_VISIBLE_MS = 2500
+
+const STATUS_COPY: Record<
+  ConnectionStatusValue,
+  { label: string; dotClass: string }
+> = {
+  offline: {
+    label: "Offline",
+    dotClass: "bg-destructive",
+  },
+  connecting: {
+    label: "Connecting",
+    dotClass: "bg-amber-500",
+  },
+  connected: {
+    label: "Connected",
+    dotClass: "bg-emerald-500",
+  },
 }
 
-type ConnectionStatusProps = {
-  status: ChatSocketStatus
-  isOffline?: boolean
-  isSyncing?: boolean
-}
+export const ConnectionStatus = memo(function ConnectionStatus() {
+  const connectionStatus = useChatUiStore((state) => state.connectionStatus)
+  const [hideConnected, setHideConnected] = useState(false)
 
-export const ConnectionStatus = memo(function ConnectionStatus({
-  status,
-  isOffline = false,
-  isSyncing = false,
-}: ConnectionStatusProps) {
-  const label = isOffline ? "Offline" : isSyncing ? "Updating" : STATUS_LABEL[status]
-  const canRetry = isOffline || status === "disconnected"
+  useEffect(() => {
+    if (connectionStatus !== "connected") {
+      setHideConnected(false)
+      return
+    }
+
+    setHideConnected(false)
+    const timer = window.setTimeout(() => {
+      setHideConnected(true)
+    }, CONNECTED_VISIBLE_MS)
+
+    return () => {
+      window.clearTimeout(timer)
+    }
+  }, [connectionStatus])
+
+  if (connectionStatus === "connected" && hideConnected) {
+    return null
+  }
+
+  const { label, dotClass } = STATUS_COPY[connectionStatus]
+  const canRetry = connectionStatus === "offline"
 
   return (
     <button
@@ -36,9 +61,7 @@ export const ConnectionStatus = memo(function ConnectionStatus({
       aria-label={
         canRetry
           ? "Connection is offline. Retry connection."
-          : isSyncing
-            ? "Updating cached conversations"
-            : `Realtime status: ${label}`
+          : `Realtime status: ${label}`
       }
       className={cn(
         "inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-xs text-muted-foreground outline-none",
@@ -50,33 +73,11 @@ export const ConnectionStatus = memo(function ConnectionStatus({
           return
         }
 
-        const token = getAccessToken()
-        if (token) {
-          connectChatSocket(token)
-        }
+        retryConnection()
       }}
     >
-      {isSyncing && !isOffline ? (
-        <Spinner className="size-3" aria-hidden="true" />
-      ) : (
-        <span
-          aria-hidden="true"
-          className={cn(
-            "size-1.5 shrink-0 rounded-full",
-            !isOffline && status === "connected" && "bg-primary",
-            !isOffline && status === "connecting" && "bg-muted-foreground",
-            !isOffline && status === "reconnecting" && "bg-accent-foreground",
-            (isOffline || status === "disconnected") && "bg-destructive",
-          )}
-        />
-      )}
-      <span aria-live="polite">
-        {status === "connected" && !isOffline && !isSyncing ? (
-          <span className="sr-only">{label}</span>
-        ) : (
-          label
-        )}
-      </span>
+      <span aria-hidden="true" className={cn("size-1.5 shrink-0 rounded-full", dotClass)} />
+      <span aria-live="polite">{label}</span>
     </button>
   )
 })

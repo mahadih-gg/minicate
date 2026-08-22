@@ -10,24 +10,17 @@ import {
   getConversationSubtitle,
   getConversationTitle,
 } from "@/lib/conversations/display"
-import type { ChatSocketStatus } from "@/lib/websocket/types"
 import type { Conversation } from "@/types/conversation"
 
 type ChatHeaderProps = {
   conversation: Conversation
   showBack?: boolean
-  socketStatus?: ChatSocketStatus
-  isOffline?: boolean
-  isSyncing?: boolean
   onBack?: () => void
 }
 
 export function ChatHeader({
   conversation,
   showBack = false,
-  socketStatus,
-  isOffline = false,
-  isSyncing = false,
   onBack,
 }: ChatHeaderProps) {
   const title = getConversationTitle(conversation)
@@ -55,13 +48,7 @@ export function ChatHeader({
         <h2 className="truncate text-sm font-medium">{title}</h2>
         <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
       </div>
-      {socketStatus ? (
-        <ConnectionStatus
-          status={socketStatus}
-          isOffline={isOffline}
-          isSyncing={isSyncing}
-        />
-      ) : null}
+      <ConnectionStatus />
     </header>
   )
 }

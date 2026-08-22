@@ -29,9 +29,6 @@ export function ChatLayout() {
     isMobile,
     sheetOpen,
     selectedConversationId,
-    socketStatus,
-    isOffline,
-    isSyncing,
     openMobile,
     handleMobileSheetChange,
   } = useChatShell()
@@ -87,11 +84,7 @@ export function ChatLayout() {
               ) : null}
               <h1 className="truncate text-sm font-medium">Minicate</h1>
               <div className="ml-auto">
-                <ConnectionStatus
-                  status={socketStatus}
-                  isOffline={isOffline}
-                  isSyncing={isSyncing}
-                />
+                <ConnectionStatus />
               </div>
             </header>
             <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-6">

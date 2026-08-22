@@ -4,6 +4,7 @@ import {
   writeCachedConversations,
   writeCachedMessages,
 } from "@/lib/cache/chat-cache"
+import { normalizeChatMessages } from "@/lib/messages/state"
 import { queryKeys } from "@/lib/query/keys"
 import type { Conversation } from "@/types/conversation"
 import type { ChatMessage } from "@/types/message"
@@ -20,7 +21,7 @@ export function persistMessages(
   conversationId: string,
   messages: ChatMessage[],
 ): void {
-  writeCachedMessages(userId, conversationId, messages)
+  writeCachedMessages(userId, conversationId, normalizeChatMessages(messages))
 }
 
 export function setConversationsCache(
@@ -44,7 +45,7 @@ export function setMessagesCache(
 ): ChatMessage[] {
   const key = queryKeys.messages(userId, conversationId)
   const current = queryClient.getQueryData<ChatMessage[]>(key) ?? []
-  const next = updater(current)
+  const next = normalizeChatMessages(updater(current))
   queryClient.setQueryData(key, next)
   persistMessages(userId, conversationId, next)
   return next
