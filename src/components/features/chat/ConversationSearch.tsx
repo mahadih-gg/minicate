@@ -1,8 +1,9 @@
 "use client"
 
-import { useCallback, useId, useState, type KeyboardEvent } from "react"
 import { SearchIcon, XIcon } from "lucide-react"
+import { useCallback, useId, useState, type KeyboardEvent } from "react"
 
+import { UserSearchResult } from "@/components/features/chat/UserSearchResult"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
@@ -14,7 +15,6 @@ import {
 } from "@/components/ui/input-group"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
-import { UserSearchResult } from "@/components/features/chat/UserSearchResult"
 import { useUserSearch } from "@/hooks/use-user-search"
 import type { PublicUser } from "@/types/user"
 
@@ -88,11 +88,12 @@ export function ConversationSearch({
 
   return (
     <div className="flex flex-col gap-2">
-      <InputGroup>
+      <InputGroup className="h-10">
         <InputGroupAddon>
           <SearchIcon />
         </InputGroupAddon>
         <InputGroupInput
+          className="h-10"
           type="search"
           role="combobox"
           aria-autocomplete="list"
@@ -100,7 +101,7 @@ export function ConversationSearch({
           aria-controls={listId}
           aria-activedescendant={activeOptionId}
           aria-label="Search people"
-          placeholder="Search by name or phone"
+          placeholder="Search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={handleKeyDown}

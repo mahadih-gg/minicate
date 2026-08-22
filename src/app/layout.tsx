@@ -1,20 +1,22 @@
-import type { Metadata } from "next";
-import { Caveat, Fraunces, Outfit } from "next/font/google";
-import "./globals.css";
 import { AppProviders } from "@/components/providers/app-providers";
 import { cn } from "@/lib/utils";
+import type { Metadata } from "next";
+import { Archivo_Black, Inter, Short_Stack } from "next/font/google";
+import "./globals.css";
 
-const outfit = Outfit({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
-const fraunces = Fraunces({
+const archivoBlack = Archivo_Black({
+  weight: "400",
   subsets: ["latin"],
   variable: "--font-heading",
 });
 
-const caveat = Caveat({
+const shortStack = Short_Stack({
+  weight: "400",
   subsets: ["latin"],
   variable: "--font-hand",
 });
@@ -37,9 +39,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={cn(
         "h-full antialiased",
-        outfit.variable,
-        fraunces.variable,
-        caveat.variable,
+        inter.variable,
+        archivoBlack.variable,
+        shortStack.variable,
         "font-sans",
       )}
     >

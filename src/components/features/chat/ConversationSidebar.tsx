@@ -26,28 +26,25 @@ export function ConversationSidebar() {
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-sidebar">
-      <div className="chat-shell-header w-full justify-between gap-2">
-        <div>
-          <Image
-            src="/assets/images/minicate-full.png"
-            alt="Minicate"
-            width={150}
-            height={32}
-            className="w-4/5 h-auto"
-          />
-        </div>
+      <div className="flex shrink-0 flex-col gap-3 border-b border-foreground p-3">
+        <Image
+          src="/assets/images/minicate-full.png"
+          alt="Minicate"
+          width={150}
+          height={20}
+          className="w-3/5 h-auto"
+        />
         <Button
           type="button"
-          size="sm"
-          aria-label="Create group"
-          className="shrink-0 border-foreground bg-secondary text-secondary-foreground hover:bg-secondary/90"
+          size="lg"
+          variant="secondary"
+          aria-label="New chat"
+          className="w-full"
           onClick={onCreateGroup}
         >
           <PlusIcon data-icon="inline-start" />
-          Create Group
+          New chat
         </Button>
-      </div>
-      <div className="flex flex-col gap-2 border-b border-foreground p-3">
         <ConversationSearch
           excludeUserId={currentUserId}
           pendingUserId={pendingUserId}
