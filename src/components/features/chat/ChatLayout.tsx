@@ -18,16 +18,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { ChatPanel } from "@/components/features/chat/ChatPanel"
 import { ConversationSidebar } from "@/components/features/chat/ConversationSidebar"
 import { CreateGroupDialog } from "@/components/features/chat/CreateGroupDialog"
 import { useAuth } from "@/hooks/use-auth"
 import { getApiErrorMessage, isAbortError } from "@/lib/api/errors"
-import { getConversationTitle } from "@/lib/conversations/display"
 import {
   listConversations,
   startDirectConversation,
 } from "@/services/conversations.service"
 import type { Conversation } from "@/types/conversation"
+import type { Message } from "@/types/message"
 import type { PublicUser } from "@/types/user"
 
 function subscribeToMobile(onStoreChange: () => void) {
@@ -143,6 +144,33 @@ export function ChatLayout() {
     setMobileOpen(false)
   }
 
+  function handleMessageSent(message: Message) {
+    setConversations((current) => {
+      const nextConversation = current.find(
+        (conversation) => conversation._id === message.conversation,
+      )
+
+      if (!nextConversation) {
+        return current
+      }
+
+      const updatedConversation: Conversation = {
+        ...nextConversation,
+        lastMessage: {
+          text: message.text,
+          sender: message.sender,
+          createdAt: message.createdAt,
+        },
+        updatedAt: message.createdAt,
+      }
+
+      return [
+        updatedConversation,
+        ...current.filter((conversation) => conversation._id !== message.conversation),
+      ]
+    })
+  }
+
   const selectedConversation =
     conversations.find((conversation) => conversation._id === selectedConversationId) ??
     null
@@ -185,52 +213,46 @@ export function ChatLayout() {
         <aside className="flex h-dvh w-80 shrink-0 flex-col border-r">{sidebar}</aside>
       )}
 
-      <section className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 items-center gap-2 border-b px-3">
-          {isMobile ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="Open conversations"
-              onClick={() => setMobileOpen(true)}
-            >
-              <MenuIcon />
-            </Button>
-          ) : null}
-          <h1 className="truncate text-sm font-medium">
-            {selectedConversation
-              ? getConversationTitle(selectedConversation)
-              : "Minicate"}
-          </h1>
-        </header>
-        <div className="flex flex-1 items-center justify-center p-6">
-          {selectedConversation ? (
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <MessagesSquareIcon />
-                </EmptyMedia>
-                <EmptyTitle>{getConversationTitle(selectedConversation)}</EmptyTitle>
-                <EmptyDescription>
-                  Messages for this conversation will appear here in a later step.
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          ) : (
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <MessagesSquareIcon />
-                </EmptyMedia>
-                <EmptyTitle>Select a conversation</EmptyTitle>
-                <EmptyDescription>
-                  Choose someone from the list, or search by name or phone number.
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          )}
-        </div>
+      <section className="flex h-dvh min-w-0 flex-1 flex-col">
+        {selectedConversation && user ? (
+          <ChatPanel
+            conversation={selectedConversation}
+            currentUserId={user._id}
+            showMenu={isMobile}
+            onOpenSidebar={() => setMobileOpen(true)}
+            onMessageSent={handleMessageSent}
+          />
+        ) : (
+          <>
+            {isMobile ? (
+              <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Open conversations"
+                  onClick={() => setMobileOpen(true)}
+                >
+                  <MenuIcon />
+                </Button>
+                <h1 className="truncate text-sm font-medium">Minicate</h1>
+              </header>
+            ) : null}
+            <div className="flex flex-1 items-center justify-center p-6">
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <MessagesSquareIcon />
+                  </EmptyMedia>
+                  <EmptyTitle>Select a conversation</EmptyTitle>
+                  <EmptyDescription>
+                    Choose someone from the list, or search by name or phone number.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            </div>
+          </>
+        )}
       </section>
 
       <CreateGroupDialog

@@ -8,6 +8,14 @@ export function getConversationTitle(conversation: Conversation): string {
   return conversation.participant.name
 }
 
+export function getConversationSubtitle(conversation: Conversation): string {
+  if (conversation.type === "direct") {
+    return conversation.participant.phone
+  }
+
+  return `${conversation.participants.length} people`
+}
+
 export function getConversationPreview(conversation: Conversation): string {
   if (conversation.lastMessage) {
     return conversation.lastMessage.text
