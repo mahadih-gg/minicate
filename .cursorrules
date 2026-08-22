@@ -1,0 +1,781 @@
+# Minicate — Cursor Rules
+
+## Project Context
+
+Minicate is a modern real-time chat application built for a frontend take-home assignment.
+
+The assignment requires:
+
+- Login using phone number and name.
+- Automatic registration for a new phone number.
+- Search users by phone number or name.
+- One-to-one conversations.
+- Group conversations.
+- Full conversation history.
+- Clear sender/receiver message distinction.
+- Message timestamps.
+- Sending messages.
+- Real-time incoming messages without refresh.
+- Loading, empty, and error states.
+- Smart auto-scroll: scroll to new messages only when the user is already near the bottom.
+- A creative responsive landing page.
+- Clean, maintainable, production-oriented code.
+- Live deployment.
+
+The backend provides REST APIs and explicitly delivers new messages over WebSocket using the `message:new` event.
+
+Do not invent API behavior. Always base API integration on the provided Swagger documentation and observed API responses.
+
+---
+
+## Current Stack
+
+The installed project currently uses:
+
+- Next.js `16.3.1`
+- React `19.2.8`
+- TypeScript `5`
+- Tailwind CSS `4`
+- shadcn
+- `@shadcn/react`
+- `@base-ui/react`
+- `lucide-react`
+- `clsx`
+- `tailwind-merge`
+- `class-variance-authority`
+- `tw-animate-css`
+- `date-fns`
+
+Package manager:
+
+- pnpm `11.6.0`
+
+Before introducing a new dependency, check `package.json`.
+
+If a required library is not installed, prefer an existing project capability first. Only add a dependency when it provides clear value and is appropriate for the assignment.
+
+Do not silently introduce TanStack Query, Zustand, Axios, React Hook Form, Zod, Socket.IO, or other libraries unless they are actually installed or the implementation explicitly requires adding them.
+
+---
+
+# 1. Architecture Principles
+
+Use Next.js App Router.
+
+Keep route files thin.
+
+Prefer this structure:
+
+```text
+src/
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   ├── login/
+│   │   └── page.tsx
+│   ├── chat/
+│   │   └── page.tsx
+│   └── ...
+├── components/
+│   ├── ui/
+│   ├── common/
+│   └── features/
+│       ├── auth/
+│       ├── chat/
+│       └── landing/
+├── hooks/
+├── lib/
+│   ├── api/
+│   ├── websocket/
+│   └── utils/
+├── services/
+├── stores/
+├── types/
+└── utils/
+```
+
+Do not create unnecessary abstraction layers.
+
+Prefer simple, explicit code over premature architecture.
+
+---
+
+# 2. API Rules
+
+The backend base URL must come from an environment variable.
+
+Example:
+
+```env
+NEXT_PUBLIC_API_URL=https://frontend-task-chatapp.onrender.com/api
+```
+
+Never hardcode API URLs inside components.
+
+Create a single API client/helper for REST requests.
+
+All API calls should live in service modules.
+
+Example:
+
+```text
+src/services/auth.service.ts
+src/services/users.service.ts
+src/services/conversations.service.ts
+src/services/messages.service.ts
+```
+
+Components must not directly call `fetch()` or REST endpoints.
+
+Do not duplicate endpoint strings across the application.
+
+Use typed request and response models.
+
+Do not use `any`.
+
+If the backend response shape is unclear, inspect the Swagger documentation or actual response before implementing.
+
+---
+
+# 3. Authentication
+
+The login flow is:
+
+1. User enters phone number.
+2. User enters/sets their name.
+3. API authenticates/registers the user.
+4. Store the returned authentication information.
+5. Redirect to the chat experience.
+
+A new/unique phone number is automatically registered according to the assignment.
+
+Authentication state should be handled centrally.
+
+Never put authentication tokens directly into random component state.
+
+Never log authentication tokens.
+
+Never commit secrets or tokens.
+
+Use environment variables for configuration.
+
+---
+
+# 4. WebSocket / Real-Time Rules
+
+Real-time messaging is a core feature.
+
+The backend documentation states that messages are delivered through WebSocket using:
+
+```text
+message:new
+```
+
+Use WebSocket for incoming real-time messages.
+
+Do not replace the WebSocket implementation with polling when the WebSocket API is available.
+
+Separate WebSocket connection logic from UI components.
+
+Prefer:
+
+```text
+src/lib/websocket/
+```
+
+or:
+
+```text
+src/hooks/useChatSocket.ts
+```
+
+depending on complexity.
+
+The WebSocket layer should handle:
+
+- Connection.
+- Authentication if required by the API.
+- Event subscription.
+- `message:new`.
+- Cleanup/disconnection.
+- Reconnection where appropriate.
+- Error handling.
+
+Do not create a new WebSocket connection every time a message component renders.
+
+The connection lifecycle must be tied to the authenticated user/session.
+
+Clean up listeners when the component or feature unmounts.
+
+Avoid duplicate event listeners.
+
+Incoming messages should update the current conversation immediately.
+
+If a message belongs to another conversation:
+
+- Update unread state if the UX supports it.
+- Do not inject it into the currently open conversation.
+
+Do not blindly append duplicate messages.
+
+Use a stable message identifier when available.
+
+---
+
+# 5. Message Sending
+
+Sending a message should use the backend REST API unless the API explicitly requires another mechanism.
+
+The documented endpoint is:
+
+```text
+POST /api/messages
+```
+
+Expected request shape includes:
+
+```json
+{
+  "conversationId": "string",
+  "text": "Hello!"
+}
+```
+
+Do not send empty or whitespace-only messages.
+
+Trim message text before validation/submission.
+
+Disable or prevent submission while an invalid message is being sent.
+
+Handle API errors visibly and gracefully.
+
+Do not assume a successful POST means the UI should blindly append a duplicate if the backend also emits `message:new`.
+
+Design the flow to avoid duplicate messages when both REST response and WebSocket event contain the same message.
+
+---
+
+# 6. Message List
+
+The message list is the highest-priority part of the assignment.
+
+It must clearly distinguish:
+
+- Messages sent by the current user.
+- Messages received from other users.
+
+Each message should show a timestamp.
+
+Use `date-fns` for date/time formatting where useful.
+
+Do not put complex message-list business logic directly inside JSX.
+
+Extract logic into hooks/utilities.
+
+---
+
+# 7. Smart Auto-Scroll
+
+The chat must:
+
+- Scroll to the newest message by default.
+- Continue following new messages when the user is near the bottom.
+- NOT force the user to the bottom when they intentionally scroll upward.
+
+Recommended behavior:
+
+```text
+User near bottom
+    ↓
+New message
+    ↓
+Auto-scroll
+
+User reading older messages
+    ↓
+New message
+    ↓
+Stay in current position
+    ↓
+Show "new messages" affordance
+```
+
+Do not use unconditional:
+
+```ts
+scrollIntoView()
+```
+
+on every message update.
+
+Detect whether the user is close to the bottom before deciding to scroll.
+
+---
+
+# 8. Chat State
+
+Separate server data from UI state.
+
+Server/API data:
+
+- Users.
+- Conversations.
+- Messages.
+
+UI state:
+
+- Active conversation.
+- Search text.
+- Composer text.
+- Modal state.
+- Sidebar state.
+- Mobile navigation state.
+- New-message indicator.
+
+Avoid duplicating the same message array in multiple unrelated stores.
+
+Keep a single source of truth where practical.
+
+---
+
+# 9. Search
+
+User search should support the API's documented search capabilities.
+
+Search by:
+
+- Name.
+- Phone number.
+
+Do not invent client-side search behavior if the backend provides a search endpoint.
+
+Avoid firing unnecessary requests on every keystroke.
+
+Use debouncing if the API/search UX requires it.
+
+Handle:
+
+- Loading.
+- No results.
+- Errors.
+- Empty query.
+
+---
+
+# 10. Group Conversations
+
+The UI must support creating group conversations with multiple participants.
+
+The group creation flow should:
+
+1. Select multiple users.
+2. Optionally provide a group name if supported by the API.
+3. Submit the documented request.
+4. Open the newly created conversation.
+
+Do not assume fields that are not documented.
+
+Keep participant selection state separate from message state.
+
+---
+
+# 11. Loading, Empty, and Error States
+
+Every async feature must have deliberate states.
+
+Examples:
+
+```text
+Loading:
+- Skeleton
+- Spinner
+- Loading placeholder
+
+Empty:
+- No conversations
+- No search results
+- No messages
+- No selected conversation
+
+Error:
+- API failure
+- WebSocket failure
+- Message send failure
+```
+
+Never leave the user staring at a blank screen with no explanation.
+
+Errors should be understandable to users.
+
+Technical details can be logged for development, but should not be the primary user-facing message.
+
+---
+
+# 12. Component Rules
+
+Prefer small components with one responsibility.
+
+Examples:
+
+```text
+ChatLayout
+ConversationSidebar
+ConversationSearch
+ConversationList
+ConversationListItem
+ChatHeader
+MessageList
+MessageBubble
+MessageComposer
+NewMessageIndicator
+GroupCreateDialog
+```
+
+Avoid a giant `ChatPage.tsx` containing the entire application.
+
+UI components should receive props rather than reaching into unrelated application state.
+
+Keep business logic in hooks/services.
+
+---
+
+# 13. Next.js Rules
+
+Use Server Components by default.
+
+Add:
+
+```tsx
+"use client"
+```
+
+only when the component actually requires:
+
+- React state.
+- Effects.
+- Browser APIs.
+- Event handlers.
+- WebSocket.
+- Client-side stores.
+
+The chat application will naturally contain client components.
+
+Do not make the entire application a client component unnecessarily.
+
+---
+
+# 14. TypeScript Rules
+
+Use strict TypeScript.
+
+Never use:
+
+```ts
+any
+```
+
+Prefer:
+
+```ts
+unknown
+```
+
+when the shape genuinely is unknown, then narrow it safely.
+
+Define API types explicitly.
+
+Example:
+
+```ts
+export interface Message {
+  id: string
+  conversationId: string
+  senderId: string
+  text: string
+  createdAt: string
+}
+```
+
+Do not duplicate the same interface in multiple files.
+
+Use domain-based type files:
+
+```text
+src/types/auth.ts
+src/types/user.ts
+src/types/conversation.ts
+src/types/message.ts
+```
+
+---
+
+# 15. Styling
+
+Minicate uses a modern cyan → blue → violet visual identity.
+
+Primary brand direction:
+
+```text
+Cyan → Blue → Violet
+```
+
+Use the existing CSS variables/theme system.
+
+Prefer semantic design tokens:
+
+```text
+bg-background
+text-foreground
+bg-primary
+text-primary-foreground
+border-border
+bg-muted
+text-muted-foreground
+```
+
+Do not scatter arbitrary hex colors throughout components.
+
+Avoid excessive gradients.
+
+Use the brand gradient primarily for:
+
+- Logo.
+- Primary CTA.
+- Important interactive states.
+- Landing-page hero elements.
+- Selected/highlighted brand elements.
+
+Keep the chat interface calm and readable.
+
+The message area should prioritize readability over decoration.
+
+---
+
+# 16. Accessibility
+
+Interactive controls must have accessible names.
+
+Buttons containing only icons must use `aria-label`.
+
+Inputs must have labels or appropriate accessible labeling.
+
+Keyboard navigation should work for:
+
+- Search.
+- Conversation selection.
+- Message composer.
+- Send action.
+- Dialogs.
+
+Do not use color alone to communicate message ownership or status.
+
+Maintain sufficient contrast.
+
+---
+
+# 17. Responsive Design
+
+The application must work on:
+
+- Desktop.
+- Tablet.
+- Mobile.
+
+The chat UI should adapt rather than simply shrink.
+
+Recommended mobile behavior:
+
+```text
+Mobile
+├── Conversation list
+└── Chat view
+    └── Navigate between them
+```
+
+Do not allow the message composer to become inaccessible when the mobile keyboard opens.
+
+Avoid fixed heights that break on small screens.
+
+---
+
+# 18. Performance
+
+Avoid unnecessary renders.
+
+Do not recreate WebSocket connections unnecessarily.
+
+Do not attach duplicate WebSocket listeners.
+
+Avoid expensive operations inside render.
+
+For long conversations, consider message virtualization only if actually needed.
+
+Do not prematurely optimize.
+
+Prioritize correctness and UX first.
+
+---
+
+# 19. Error Handling
+
+API errors must be handled at the service/hook boundary.
+
+Never silently swallow errors.
+
+Use consistent error handling.
+
+Example:
+
+```ts
+try {
+  // request
+} catch (error) {
+  // convert to a user-safe error
+  // preserve useful debugging information in development
+}
+```
+
+Never show raw stack traces to users.
+
+If WebSocket disconnects unexpectedly, communicate the connection state appropriately.
+
+---
+
+# 20. Security
+
+Never commit:
+
+- API tokens.
+- JWTs.
+- Passwords.
+- Private keys.
+- `.env` secrets.
+
+Do not hardcode the token shown in Swagger examples.
+
+Treat all API data as untrusted input.
+
+Do not use `dangerouslySetInnerHTML` for user-generated messages.
+
+Render message text as plain text.
+
+---
+
+# 21. Git and Code Quality
+
+Keep commits focused.
+
+Use meaningful names.
+
+Remove unused imports and dead code.
+
+Do not leave debug `console.log()` statements in production code.
+
+Before considering a feature complete, run:
+
+```bash
+pnpm lint
+pnpm build
+```
+
+Fix TypeScript and ESLint errors before moving forward.
+
+---
+
+# 22. Assignment-Specific Priorities
+
+Prioritize work in this order:
+
+1. API understanding/documentation.
+2. Authentication.
+3. Conversation/user search.
+4. Conversation creation.
+5. Message history.
+6. Message sending.
+7. WebSocket real-time updates.
+8. Smart auto-scroll.
+9. Loading/empty/error states.
+10. Responsive polish.
+11. Creative landing page.
+12. README / thought-process write-up.
+
+Do not spend excessive time on the landing page before the core chat works.
+
+The assignment explicitly places the most emphasis on the chat panel, message list, sending, and real-time behavior.
+
+---
+
+# 23. Do Not Invent API Behavior
+
+This is one of the most important project rules.
+
+If the Swagger documentation says something, follow it.
+
+If the API response differs from Swagger:
+
+1. Record the observed response.
+2. Determine the safest implementation.
+3. Keep the API adapter isolated.
+4. Document the inconsistency in the README.
+
+Do not silently build assumptions into UI components.
+
+The service layer should absorb backend-specific quirks where possible.
+
+---
+
+# 24. Development Workflow
+
+For every feature:
+
+```text
+1. Inspect API contract
+2. Define TypeScript types
+3. Implement service/API function
+4. Implement hook/state logic
+5. Implement UI
+6. Add loading/empty/error states
+7. Test real API behavior
+8. Test responsive behavior
+9. Run lint
+10. Run build
+```
+
+Do not jump directly from API documentation to a large UI component.
+
+---
+
+# 25. Cursor Behavior
+
+When modifying the project:
+
+- Inspect existing files before creating replacements.
+- Reuse existing shadcn/UI components where appropriate.
+- Do not overwrite working code unnecessarily.
+- Do not introduce a new library when the current stack already solves the problem.
+- Keep changes scoped to the requested feature.
+- Preserve existing naming conventions.
+- Prefer incremental changes.
+- Explain important architectural changes briefly before making them.
+- If API behavior is unclear, ask for the API response/documentation rather than inventing it.
+- When implementing WebSocket behavior, verify the actual connection URL, authentication mechanism, event payload, and lifecycle before coding against assumptions.
+
+---
+
+# 26. Definition of Done
+
+A feature is not complete until:
+
+- [ ] TypeScript has no errors.
+- [ ] ESLint passes.
+- [ ] API calls use the service layer.
+- [ ] No `any` was introduced.
+- [ ] Loading state exists where needed.
+- [ ] Empty state exists where needed.
+- [ ] Error state exists where needed.
+- [ ] Mobile layout works.
+- [ ] Keyboard interaction works where applicable.
+- [ ] Real-time behavior does not create duplicate messages.
+- [ ] WebSocket listeners are cleaned up.
+- [ ] No secrets are committed.
+- [ ] `pnpm build` succeeds.
