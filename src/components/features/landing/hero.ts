@@ -3,6 +3,7 @@ export const LANDING_NAV_LINKS = [
   { label: "Security", href: "#security" },
   { label: "Download", href: "#download" },
   { label: "About", href: "#about" },
+  { label: "Builder", href: "#builder" },
 ] as const
 
 export const LANDING_CTA_HREF = "/login"
@@ -89,6 +90,40 @@ export const LANDING_FOOTER = {
         { label: "Terms of Service", href: "#terms" },
       ],
     },
+  ],
+} as const
+
+export const LANDING_BUILDER = {
+  heading: "Who Built It?",
+  name: "Mahadi Hasan",
+  role: "Lead Front-end Engineer",
+  intro:
+    "I design and build interfaces that feel considered: calm to read, sharp to use, and structured so they can grow. Minicate is my take on a real-time messenger with personality.",
+  highlights: [
+    "Based in Dhaka, shipping React, Next.js, and TypeScript products.",
+    "Obsessed with architecture, accessibility, and motion that stays out of the way.",
+    "Built Minicate with a thin UI, hooks for logic, and one socket for live chat.",
+  ],
+  builtWith:
+    "Built with a notebook aesthetic, a quiet chat surface, and tools I actually use in production.",
+  portrait: {
+    src: "/assets/images/mahadi-profile.webp",
+    alt: "Portrait of Mahadi Hasan, the developer who built Minicate",
+  },
+  links: [
+    { label: "GitHub", href: "https://github.com/mahadih-gg", kind: "github" },
+    { label: "LinkedIn", href: "https://linkedin.com/in/mahadih2", kind: "linkedin" },
+    { label: "Portfolio", href: "https://mahadi.dev", kind: "portfolio" },
+  ],
+  stack: [
+    { label: "Next.js", kind: "next" },
+    { label: "React", kind: "react" },
+    { label: "TypeScript", kind: "typescript" },
+    { label: "Tailwind", kind: "tailwind" },
+    { label: "shadcn", kind: "shadcn" },
+    { label: "Socket.IO", kind: "socket" },
+    { label: "TanStack Query", kind: "query" },
+    { label: "Motion", kind: "motion" },
   ],
 } as const
 

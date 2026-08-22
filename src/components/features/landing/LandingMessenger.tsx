@@ -38,47 +38,47 @@ export function LandingMessenger() {
           stagger={0.12}
         >
           <RevealItem variant="left">
-          <h2
-            id="messenger-heading"
-            className="font-heading text-4xl leading-[1.08] tracking-tight text-foreground sm:text-5xl"
-          >
-            <span className="block">{LANDING_MESSENGER.headline}</span>
-            <span className="mt-1 block font-hand text-[1.15em] font-bold text-brand-violet">
-              <Highlighter
-                action="underline"
-                color="var(--brand-violet)"
-                strokeWidth={3}
-                iterations={2}
-                animationDuration={800}
-                padding={4}
-                isView
-              >
-                {LANDING_MESSENGER.headlineAccent}
-              </Highlighter>
-            </span>
-          </h2>
-          </RevealItem>
-
-          <RevealItem variant="left">
-          <p className="mt-5 max-w-md font-hand text-lg leading-snug text-foreground/80 sm:text-xl">
-            {LANDING_MESSENGER.supporting}
-          </p>
-          </RevealItem>
-
-          <RevealItem variant="left">
-          <div className="mt-8 flex flex-col items-center gap-3 lg:items-start">
-            <Link
-              href={LANDING_COPY.secondaryCtaHref}
-              className={landingSecondaryCtaClassName()}
+            <h2
+              id="messenger-heading"
+              className="font-heading text-4xl leading-[1.08] tracking-tight text-foreground sm:text-5xl"
             >
-              {LANDING_MESSENGER.cta}
-              <ArrowRightIcon data-icon="inline-end" />
-            </Link>
-            <p className="flex items-center gap-2 font-hand text-base text-muted-foreground">
-              <SketchArrow className="h-5 w-12 -rotate-90" />
-              {LANDING_MESSENGER.ctaHint}
+              {LANDING_MESSENGER.headline} {" "}
+              <span className="text-brand-violet">
+                <Highlighter
+                  action="underline"
+                  color="var(--brand-violet)"
+                  strokeWidth={3}
+                  iterations={2}
+                  animationDuration={800}
+                  padding={4}
+                  isView
+                >
+                  {LANDING_MESSENGER.headlineAccent}
+                </Highlighter>
+              </span>
+            </h2>
+          </RevealItem>
+
+          <RevealItem variant="left">
+            <p className="mt-5 max-w-md font-hand text-lg leading-snug text-foreground/80 sm:text-xl">
+              {LANDING_MESSENGER.supporting}
             </p>
-          </div>
+          </RevealItem>
+
+          <RevealItem variant="left">
+            <div className="mt-8 flex flex-col items-center gap-3 lg:items-start">
+              <Link
+                href={LANDING_COPY.secondaryCtaHref}
+                className={landingSecondaryCtaClassName()}
+              >
+                {LANDING_MESSENGER.cta}
+                <ArrowRightIcon data-icon="inline-end" />
+              </Link>
+              <p className="flex items-center gap-2 font-hand text-base text-muted-foreground">
+                <SketchArrow className="h-5 w-12 -rotate-90" />
+                {LANDING_MESSENGER.ctaHint}
+              </p>
+            </div>
           </RevealItem>
         </RevealGroup>
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 
+import { LandingBuilder } from "@/components/features/landing/LandingBuilder"
 import { LandingFeatures } from "@/components/features/landing/LandingFeatures"
 import { LandingFooter } from "@/components/features/landing/LandingFooter"
 import { LandingHero } from "@/components/features/landing/LandingHero"
@@ -28,6 +29,7 @@ export default function Home() {
           <div className="relative overflow-hidden">
 
             <LandingMessenger />
+            <LandingBuilder />
             <LandingFooter />
 
             <Reveal
