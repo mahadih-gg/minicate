@@ -1,7 +1,12 @@
 import type { Metadata } from "next"
 
+import { LandingFeatures } from "@/components/features/landing/LandingFeatures"
+import { LandingFooter } from "@/components/features/landing/LandingFooter"
 import { LandingHero } from "@/components/features/landing/LandingHero"
+import { LandingMessenger } from "@/components/features/landing/LandingMessenger"
 import { LandingNavbar } from "@/components/features/landing/LandingNavbar"
+import { SmoothScroll } from "@/components/features/landing/SmoothScroll"
+import Grainient from "@/components/Grainient"
 
 export const metadata: Metadata = {
   title: "Minicate - Chat freely. Stay closely.",
@@ -11,11 +16,34 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="flex min-h-dvh flex-col">
-      <LandingNavbar />
-      <main className="flex-1">
-        <LandingHero />
-      </main>
-    </div>
+    <SmoothScroll>
+      <div className="flex min-h-dvh flex-col overflow-x-clip">
+        <LandingNavbar />
+        <main className="flex-1">
+          <LandingHero />
+          <LandingFeatures />
+
+          <div className="relative overflow-hidden">
+
+            <LandingMessenger />
+            <LandingFooter />
+
+            <div
+              aria-hidden
+              className="pointer-events-none absolute bottom-0 left-0 -z-10 aspect-square w-[70%] -translate-x-[20%] translate-y-[40%] overflow-hidden rounded-full opacity-70 mask-[radial-gradient(circle_at_center,black_0%,transparent_55%)]"
+            >
+
+              <Grainient
+                blendAngle={148}
+                centerX={0.2}
+                centerY={-0.1}
+                timeSpeed={0.14}
+                grainAmount={0.04}
+              />
+            </div>
+          </div>
+        </main>
+      </div>
+    </SmoothScroll>
   )
 }

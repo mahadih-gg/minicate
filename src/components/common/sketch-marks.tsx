@@ -110,3 +110,73 @@ export function SketchChatDoodle({ className }: SketchMarkProps) {
     </svg>
   )
 }
+
+export function SketchRule({ className }: SketchMarkProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 400 8"
+      preserveAspectRatio="none"
+      className={cn("pointer-events-none h-2 w-full text-foreground", className)}
+      fill="none"
+    >
+      <path
+        d="M0 4c40-2.5 80 2.5 120 0s80 3.5 120-1 80 2.8 160 1"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+export function SketchColumnRule({ className }: SketchMarkProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 8 220"
+      preserveAspectRatio="none"
+      className={cn("pointer-events-none h-full w-2 text-foreground", className)}
+      fill="none"
+    >
+      <path
+        d="M4 2c2 28-2 48 1 72-3 28 2 46 0 74-2 24 3 38 0 70"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+export function SketchPaintBlob({ className }: SketchMarkProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 80 80"
+      className={cn("pointer-events-none text-current", className)}
+      fill="currentColor"
+    >
+      <path d="M22 14c16-12 42-6 48 14 6 18-8 36-26 38-20 3-36-12-34-28 1-12 6-18 12-24Z" />
+    </svg>
+  )
+}
+
+export function SketchHeart({ className }: SketchMarkProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 36 36"
+      className={cn("pointer-events-none text-foreground", className)}
+      fill="none"
+    >
+      <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M18 25c-6-4.2-9-7.4-9-11 0-2.6 2-4.4 4.5-4.4 1.7 0 3.2.9 4.5 2.4 1.3-1.5 2.8-2.4 4.5-2.4 2.5 0 4.5 1.8 4.5 4.4 0 3.6-3 6.8-9 11Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}

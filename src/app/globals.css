@@ -44,6 +44,7 @@
   --color-brand-cyan: var(--brand-cyan);
   --color-brand-blue: var(--brand-blue);
   --color-brand-violet: var(--brand-violet);
+  --color-brand-peach: var(--brand-peach);
   --color-status-offline: var(--status-offline);
   --color-status-connecting: var(--status-connecting);
   --color-status-connected: var(--status-connected);
@@ -311,10 +312,52 @@
   .sketch-press {
     transition: none;
   }
+
+  .review-swiper .swiper-wrapper {
+    transition-duration: 0ms !important;
+  }
 }
 
 @layer utilities {
   .container-fluid {
     @apply mx-auto w-full px-4 sm:px-10 xl:px-20;
+  }
+
+  .review-swiper {
+    --swiper-pagination-bullet-size: 8px;
+    --swiper-pagination-bullet-width: 8px;
+    --swiper-pagination-bullet-height: 8px;
+    --swiper-pagination-bullet-horizontal-gap: 6px;
+    --swiper-pagination-bullet-inactive-color: color-mix(
+      in oklab,
+      var(--foreground) 22%,
+      var(--card)
+    );
+    --swiper-pagination-bullet-inactive-opacity: 1;
+    --swiper-pagination-color: var(--brand-violet);
+    --swiper-pagination-bullet-opacity: 1;
+  }
+
+  .review-swiper .swiper-wrapper {
+    align-items: stretch;
+  }
+
+  .review-swiper .swiper-slide {
+    display: flex;
+    height: auto;
+  }
+
+  .review-swiper .swiper-pagination {
+    bottom: 0;
+  }
+
+  .review-swiper .swiper-pagination-bullet {
+    border-radius: 999px;
+  }
+
+  .review-swiper .swiper-pagination-bullet-active {
+    width: 10px;
+    height: 10px;
+    background: var(--brand-violet);
   }
 }
