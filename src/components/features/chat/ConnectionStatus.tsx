@@ -1,5 +1,7 @@
 "use client"
 
+import { memo } from "react"
+
 import { Spinner } from "@/components/ui/spinner"
 import { getAccessToken } from "@/lib/auth/session"
 import { connectChatSocket } from "@/lib/websocket/client"
@@ -19,7 +21,7 @@ type ConnectionStatusProps = {
   isSyncing?: boolean
 }
 
-export function ConnectionStatus({
+export const ConnectionStatus = memo(function ConnectionStatus({
   status,
   isOffline = false,
   isSyncing = false,
@@ -77,4 +79,4 @@ export function ConnectionStatus({
       </span>
     </button>
   )
-}
+})

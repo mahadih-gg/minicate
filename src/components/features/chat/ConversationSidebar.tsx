@@ -5,36 +5,23 @@ import { UsersIcon } from "lucide-react"
 import { ConversationList } from "@/components/features/chat/ConversationList"
 import { ConversationSearch } from "@/components/features/chat/ConversationSearch"
 import { Button } from "@/components/ui/button"
-import type { Conversation } from "@/types/conversation"
-import type { PublicUser } from "@/types/user"
+import { useConversationSidebar } from "@/hooks/use-conversation-sidebar"
 
-type ConversationSidebarProps = {
-  conversations: Conversation[]
-  selectedConversationId: string | null
-  isLoading: boolean
-  error: string | null
-  currentUserId?: string
-  pendingUserId?: string | null
-  startError?: string | null
-  onRetry: () => void
-  onSelect: (conversationId: string) => void
-  onSelectUser: (user: PublicUser) => void
-  onCreateGroup: () => void
-}
+export function ConversationSidebar() {
+  const {
+    conversations,
+    selectedConversationId,
+    isLoading,
+    error,
+    currentUserId,
+    pendingUserId,
+    startError,
+    onRetry,
+    onSelect,
+    onSelectUser,
+    onCreateGroup,
+  } = useConversationSidebar()
 
-export function ConversationSidebar({
-  conversations,
-  selectedConversationId,
-  isLoading,
-  error,
-  currentUserId,
-  pendingUserId,
-  startError,
-  onRetry,
-  onSelect,
-  onSelectUser,
-  onCreateGroup,
-}: ConversationSidebarProps) {
   return (
     <div className="flex h-full min-h-0 flex-col bg-sidebar">
       <div className="flex items-center justify-between gap-2 border-b px-4 py-3">

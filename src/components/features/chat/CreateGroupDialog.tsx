@@ -20,26 +20,15 @@ import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 import { UserSearchResult } from "@/components/features/chat/UserSearchResult"
+import { useCreateGroupDialog } from "@/hooks/use-conversation-sidebar"
 import { useUserSearch } from "@/hooks/use-user-search"
 import { getApiErrorMessage } from "@/lib/api/errors"
-import { createGroupConversation } from "@/services/conversations.service"
 import type { PublicUser } from "@/types/user"
 
 const MIN_OTHER_PARTICIPANTS = 2
 
-type CreateGroupDialogProps = {
-  open: boolean
-  excludeUserId?: string
-  onOpenChange: (open: boolean) => void
-  onCreated: (conversationId: string) => void
-}
-
-export function CreateGroupDialog({
-  open,
-  excludeUserId,
-  onOpenChange,
-  onCreated,
-}: CreateGroupDialogProps) {
+export function CreateGroupDialog() {
+  const { open, excludeUserId, createGroup, onOpenChange } = useCreateGroupDialog()
   const { query, setQuery, results, error, isLoading, clear, retry } =
     useUserSearch(excludeUserId)
   const [name, setName] = useState("")
@@ -100,13 +89,11 @@ export function CreateGroupDialog({
     setIsSubmitting(true)
 
     try {
-      const conversation = await createGroupConversation({
+      await createGroup({
         name: trimmedName,
         participantIds: participants.map((user) => user._id),
       })
       resetForm()
-      onOpenChange(false)
-      onCreated(conversation._id)
     } catch (caught: unknown) {
       setSubmitError(
         getApiErrorMessage(caught, "Could not create the group. Please try again."),

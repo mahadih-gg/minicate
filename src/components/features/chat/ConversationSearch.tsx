@@ -1,6 +1,6 @@
 "use client"
 
-import { useId, useState, type KeyboardEvent } from "react"
+import { useCallback, useId, useState, type KeyboardEvent } from "react"
 import { SearchIcon, XIcon } from "lucide-react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -42,6 +42,14 @@ export function ConversationSearch({
   const safeActiveIndex =
     results.length === 0 ? 0 : Math.min(activeIndex, results.length - 1)
 
+  const handleSelectUser = useCallback(
+    (selectedUser: PublicUser) => {
+      onSelectUser(selectedUser)
+      clear()
+    },
+    [clear, onSelectUser],
+  )
+
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Escape") {
       event.preventDefault()
@@ -69,8 +77,7 @@ export function ConversationSearch({
       event.preventDefault()
       const user = results[safeActiveIndex]
       if (user) {
-        onSelectUser(user)
-        clear()
+        handleSelectUser(user)
       }
     }
   }
@@ -153,10 +160,7 @@ export function ConversationSearch({
                     user={user}
                     isActive={index === safeActiveIndex}
                     isPending={pendingUserId === user._id}
-                    onSelect={(selectedUser) => {
-                      onSelectUser(selectedUser)
-                      clear()
-                    }}
+                    onSelect={handleSelectUser}
                   />
                 ))}
               </div>

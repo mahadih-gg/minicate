@@ -1,5 +1,7 @@
 "use client"
 
+import { memo } from "react"
+
 import { UserAvatar } from "@/components/common/UserAvatar"
 import { getConversationAvatarSeed } from "@/lib/avatars/config"
 import {
@@ -16,7 +18,7 @@ type ConversationListItemProps = {
   onSelect: (conversationId: string) => void
 }
 
-export function ConversationListItem({
+export const ConversationListItem = memo(function ConversationListItem({
   conversation,
   isSelected,
   onSelect,
@@ -57,4 +59,4 @@ export function ConversationListItem({
       </span>
     </button>
   )
-}
+})

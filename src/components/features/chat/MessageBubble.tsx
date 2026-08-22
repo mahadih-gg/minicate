@@ -1,6 +1,7 @@
 "use client"
 
 import { CheckIcon, ClockIcon, RotateCcwIcon } from "lucide-react"
+import { memo } from "react"
 
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
 import { Button } from "@/components/ui/button"
@@ -89,7 +90,7 @@ function SendStatus({
   )
 }
 
-export function MessageBubble({
+export const MessageBubble = memo(function MessageBubble({
   message,
   conversation,
   currentUserId,
@@ -134,4 +135,4 @@ export function MessageBubble({
       </MessageContent>
     </Message>
   )
-}
+})

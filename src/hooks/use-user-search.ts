@@ -1,87 +1,62 @@
-import { useEffect, useState } from "react"
+"use client"
 
-import { getApiErrorMessage, isAbortError } from "@/lib/api/errors"
-import { searchUsers } from "@/services/users.service"
-import type { PublicUser } from "@/types/user"
+import { useQuery } from "@tanstack/react-query"
+import { useCallback, useState } from "react"
+
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
-
-type SearchStatus = "idle" | "loading" | "success" | "error"
+import { getApiErrorMessage } from "@/lib/api/errors"
+import { queryKeys } from "@/lib/query/keys"
+import { searchUsers } from "@/services/users.service"
 
 export function useUserSearch(excludeUserId?: string) {
   const [query, setQuery] = useState("")
-  const [results, setResults] = useState<PublicUser[]>([])
-  const [status, setStatus] = useState<SearchStatus>("idle")
-  const [error, setError] = useState<string | null>(null)
-  const [retryCount, setRetryCount] = useState(0)
   const debouncedQuery = useDebouncedValue(query, 300)
   const trimmedQuery = debouncedQuery.trim()
+  const isIdle = !query.trim()
 
-  useEffect(() => {
-    if (!trimmedQuery) {
-      return
-    }
+  const searchQuery = useQuery({
+    queryKey: [...queryKeys.userSearch(trimmedQuery), excludeUserId ?? null],
+    queryFn: async ({ signal }) => {
+      const users = await searchUsers(trimmedQuery, signal)
+      return excludeUserId
+        ? users.filter((user) => user._id !== excludeUserId)
+        : users
+    },
+    enabled: Boolean(trimmedQuery),
+    staleTime: 30_000,
+  })
 
-    const controller = new AbortController()
-
-    void (async () => {
-      await Promise.resolve()
-
-      if (controller.signal.aborted) {
-        return
-      }
-
-      setStatus("loading")
-      setError(null)
-
-      try {
-        const users = await searchUsers(trimmedQuery, controller.signal)
-        const visibleUsers = excludeUserId
-          ? users.filter((user) => user._id !== excludeUserId)
-          : users
-        setResults(visibleUsers)
-        setStatus("success")
-      } catch (caught: unknown) {
-        if (isAbortError(caught) || controller.signal.aborted) {
-          return
-        }
-
-        setResults([])
-        setStatus("error")
-        setError(
-          getApiErrorMessage(caught, "Could not search users. Please try again."),
-        )
-      }
-    })()
-
-    return () => {
-      controller.abort()
-    }
-  }, [excludeUserId, retryCount, trimmedQuery])
-
-  function clear() {
+  const clear = useCallback(() => {
     setQuery("")
-    setResults([])
-    setStatus("idle")
-    setError(null)
-  }
+  }, [])
 
-  function retry() {
+  const { refetch } = searchQuery
+
+  const retry = useCallback(() => {
     if (!query.trim()) {
       return
     }
 
-    setRetryCount((current) => current + 1)
-  }
+    void refetch()
+  }, [query, refetch])
 
-  const isIdle = !query.trim()
+  const error = searchQuery.error
+    ? getApiErrorMessage(searchQuery.error, "Could not search users. Please try again.")
+    : null
 
   return {
     query,
     setQuery,
-    results: isIdle ? [] : results,
-    status: isIdle ? "idle" : status,
+    results: isIdle ? [] : (searchQuery.data ?? []),
+    status: isIdle
+      ? ("idle" as const)
+      : searchQuery.isPending
+        ? ("loading" as const)
+        : searchQuery.isError
+          ? ("error" as const)
+          : ("success" as const),
     error: isIdle ? null : error,
-    isLoading: !isIdle && status === "loading",
+    isLoading: !isIdle && searchQuery.isFetching,
     clear,
     retry,
   }

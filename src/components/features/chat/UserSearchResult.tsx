@@ -1,5 +1,7 @@
 "use client"
 
+import { memo } from "react"
+
 import { UserAvatar } from "@/components/common/UserAvatar"
 import { Spinner } from "@/components/ui/spinner"
 import { getAvatarSeed } from "@/lib/avatars/config"
@@ -15,7 +17,7 @@ type UserSearchResultProps = {
   onSelect: (user: PublicUser) => void
 }
 
-export function UserSearchResult({
+export const UserSearchResult = memo(function UserSearchResult({
   user,
   isActive = false,
   isSelected = false,
@@ -46,4 +48,4 @@ export function UserSearchResult({
       {isPending ? <Spinner /> : null}
     </button>
   )
-}
+})

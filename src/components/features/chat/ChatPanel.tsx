@@ -3,41 +3,31 @@
 import { ChatHeader } from "@/components/features/chat/ChatHeader"
 import { MessageComposer } from "@/components/features/chat/MessageComposer"
 import { MessageList } from "@/components/features/chat/MessageList"
-import type { ChatSocketStatus } from "@/lib/websocket/types"
-import type { Conversation } from "@/types/conversation"
-import type { ChatMessage } from "@/types/message"
+import { useChatPanel } from "@/hooks/use-chat-panel"
 
-type ChatPanelProps = {
-  conversation: Conversation
-  currentUserId: string
-  messages: ChatMessage[]
-  isLoading: boolean
-  error: string | null
-  socketStatus: ChatSocketStatus
-  showBack?: boolean
-  isOffline?: boolean
-  isSyncing?: boolean
-  onBack?: () => void
-  onRetry: () => void
-  onRetryMessage: (clientMessageId: string) => void
-  onSend: (text: string) => void
-}
+export function ChatPanel() {
+  const panel = useChatPanel()
 
-export function ChatPanel({
-  conversation,
-  currentUserId,
-  messages,
-  isLoading,
-  error,
-  socketStatus,
-  showBack,
-  isOffline,
-  isSyncing,
-  onBack,
-  onRetry,
-  onRetryMessage,
-  onSend,
-}: ChatPanelProps) {
+  if (!panel) {
+    return null
+  }
+
+  const {
+    conversation,
+    currentUserId,
+    messages,
+    isLoading,
+    error,
+    socketStatus,
+    showBack,
+    isOffline,
+    isSyncing,
+    onBack,
+    onRetry,
+    onRetryMessage,
+    onSend,
+  } = panel
+
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
       <ChatHeader
