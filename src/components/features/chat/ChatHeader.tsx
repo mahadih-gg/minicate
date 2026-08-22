@@ -27,7 +27,7 @@ export function ChatHeader({
   const subtitle = getConversationSubtitle(conversation)
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-3 border-b px-3">
+    <header className="chat-shell-header w-full gap-3">
       {showBack ? (
         <Button
           type="button"
@@ -45,8 +45,10 @@ export function ChatHeader({
         size="sm"
       />
       <div className="min-w-0 flex-1">
-        <h2 className="truncate text-sm font-medium">{title}</h2>
-        <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
+        <h2 className="font-heading truncate text-base tracking-tight">{title}</h2>
+        <p className="truncate font-hand text-sm leading-none text-muted-foreground">
+          {subtitle}
+        </p>
       </div>
       <ConnectionStatus />
     </header>

@@ -52,11 +52,8 @@ export function MessageComposer({
   }
 
   return (
-    <form
-      className="flex flex-col gap-2 border-t bg-background px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
-      onSubmit={handleSubmit}
-    >
-      <InputGroup className="h-auto items-end">
+    <form className="chat-shell-footer w-full" onSubmit={handleSubmit}>
+      <InputGroup className="h-12 items-center border-[1.5px] border-foreground bg-white shadow-[var(--shadow-sketch)] has-[>textarea]:h-12 dark:bg-card">
         <InputGroupTextarea
           id="message-composer"
           name="message"
@@ -66,17 +63,17 @@ export function MessageComposer({
           placeholder="Write a message"
           value={text}
           disabled={disabled}
-          className="min-h-10 max-h-32 py-2.5"
+          className="h-10 min-h-10 max-h-10 field-sizing-fixed overflow-y-auto py-2 text-foreground placeholder:text-muted-foreground"
           onChange={(event) => setText(event.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <InputGroupAddon align="inline-end">
+        <InputGroupAddon align="inline-end" className="pr-1.5">
           <Button
             type="submit"
             size="icon"
             aria-label="Send message"
             disabled={!canSend}
-            className="bg-linear-to-r from-(--brand-cyan) via-(--brand-blue) to-(--brand-violet) text-primary-foreground hover:opacity-90"
+            className="bg-linear-to-br from-brand-cyan via-brand-blue to-brand-violet text-primary-foreground hover:opacity-90"
           >
             <SendIcon />
           </Button>

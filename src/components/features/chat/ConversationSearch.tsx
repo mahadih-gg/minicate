@@ -140,7 +140,7 @@ export function ConversationSearch({
           ) : null}
 
           {!isLoading && status === "success" && results.length === 0 ? (
-            <Empty className="border p-4">
+            <Empty className="border border-foreground p-4 shadow-[var(--shadow-sketch-sm)]">
               <EmptyHeader>
                 <EmptyTitle>No people found</EmptyTitle>
                 <EmptyDescription>

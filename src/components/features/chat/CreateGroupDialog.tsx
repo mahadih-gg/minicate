@@ -191,7 +191,7 @@ export function CreateGroupDialog() {
               </div>
             ) : null}
             {!isLoading && !error && query.trim() && visibleResults.length === 0 ? (
-              <Empty className="border p-3">
+              <Empty className="border border-foreground p-3 shadow-[var(--shadow-sketch-sm)]">
                 <EmptyHeader>
                   <EmptyTitle>No people found</EmptyTitle>
                   <EmptyDescription>Try another search.</EmptyDescription>

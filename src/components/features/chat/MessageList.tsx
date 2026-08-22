@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowDownIcon, MessageCircleIcon } from "lucide-react"
+import { ArrowDownIcon } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
+import { SketchChatDoodle } from "@/components/common/sketch-marks"
 import {
   MessageScroller,
   MessageScrollerButton,
@@ -50,10 +51,10 @@ export function MessageList({
         aria-busy="true"
         aria-label="Loading messages"
       >
-        <Skeleton className="h-16 w-3/4 max-w-xs self-start rounded-xl" />
-        <Skeleton className="h-12 w-2/3 max-w-xs self-end rounded-xl" />
-        <Skeleton className="h-20 w-4/5 max-w-sm self-start rounded-xl" />
-        <Skeleton className="h-14 w-1/2 max-w-xs self-end rounded-xl" />
+        <Skeleton className="h-16 w-3/4 max-w-xs self-start" />
+        <Skeleton className="h-12 w-2/3 max-w-xs self-end" />
+        <Skeleton className="h-20 w-4/5 max-w-sm self-start" />
+        <Skeleton className="h-14 w-1/2 max-w-xs self-end" />
       </div>
     )
   }
@@ -79,8 +80,8 @@ export function MessageList({
       <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-4">
         <Empty>
           <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <MessageCircleIcon />
+            <EmptyMedia variant="default">
+              <SketchChatDoodle className="h-20 w-36" />
             </EmptyMedia>
             <EmptyTitle>No messages yet</EmptyTitle>
             <EmptyDescription>
@@ -100,7 +101,7 @@ export function MessageList({
     >
       <MessageScroller className="min-h-0 flex-1">
         <MessageScrollerViewport aria-label="Messages">
-          <MessageScrollerContent className="flex flex-col gap-3 overflow-x-hidden px-4 py-4">
+          <MessageScrollerContent className="flex flex-col gap-4 overflow-x-hidden px-2 py-4">
             {messages.map((message) => (
               <MessageScrollerItem
                 key={message.clientMessageId}
@@ -120,7 +121,7 @@ export function MessageList({
           direction="end"
           size="sm"
           aria-label="Jump to latest messages"
-          className="gap-1.5 px-3"
+          className="gap-1.5 border-foreground bg-card px-3 shadow-[var(--shadow-sketch-sm)]"
         >
           <ArrowDownIcon data-icon="inline-start" />
           New messages

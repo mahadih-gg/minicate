@@ -1,8 +1,8 @@
 "use client"
 
-import { CheckIcon, ClockIcon, RotateCcwIcon } from "lucide-react"
 import { memo } from "react"
 
+import { SketchRays } from "@/components/common/sketch-marks"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,12 +11,6 @@ import {
   MessageFooter,
   MessageHeader,
 } from "@/components/ui/message"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
 import {
   formatMessageTimestamp,
   getMessageOwnershipLabel,
@@ -41,52 +35,34 @@ function SendStatus({
 }) {
   if (status === "sending") {
     return (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <span className="inline-flex text-primary-foreground/80" />
-          }
-        >
-          <ClockIcon className="size-2.5" aria-label="Sending" />
-        </TooltipTrigger>
-        <TooltipContent>Sending</TooltipContent>
-      </Tooltip>
+      <span className="font-hand text-xs text-muted-foreground" aria-label="Sending">
+        Sending...
+      </span>
     )
   }
 
   if (status === "sent") {
     return (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <span className="inline-flex text-primary-foreground/80" />
-          }
-        >
-          <CheckIcon className="size-2.5" aria-label="Sent" />
-        </TooltipTrigger>
-        <TooltipContent>Sent</TooltipContent>
-      </Tooltip>
+      <span className="font-hand text-xs text-muted-foreground" aria-label="Sent">
+        Sent ✓
+      </span>
     )
   }
 
   return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            className="size-4 text-primary-foreground hover:bg-transparent hover:text-primary-foreground"
-            aria-label="Not sent. Retry"
-            onClick={onRetry}
-          />
-        }
+    <span className="inline-flex items-center gap-1.5">
+      <span className="font-hand text-xs text-destructive">Not sent</span>
+      <Button
+        type="button"
+        variant="ghost"
+        size="xs"
+        className="font-hand h-5 px-1.5 text-xs text-destructive hover:bg-transparent hover:text-destructive"
+        aria-label="Not sent. Retry"
+        onClick={onRetry}
       >
-        <RotateCcwIcon className="size-2.5" />
-      </TooltipTrigger>
-      <TooltipContent>Not sent. Retry</TooltipContent>
-    </Tooltip>
+        Retry
+      </Button>
+    </span>
   )
 }
 
@@ -104,34 +80,42 @@ export const MessageBubble = memo(function MessageBubble({
   const showLocalStatus = isOwnMessage && message.clientMessageId !== message._id
 
   return (
-    <Message align={align} aria-label={`${ownershipLabel}, ${timestamp || "sent"}`}>
+    <Message
+      align={align}
+      className="animate-ink-in"
+      aria-label={`${ownershipLabel}, ${timestamp || "sent"}`}
+    >
       <MessageContent>
         {!isOwnMessage ? (
-          <MessageHeader>{senderName ?? "Member"}</MessageHeader>
+          <MessageHeader className="font-hand">{senderName ?? "Member"}</MessageHeader>
         ) : null}
-        <Bubble variant={isOwnMessage ? "default" : "outline"} align={align}>
-          <BubbleContent
-            className={cn(
-              "whitespace-pre-wrap wrap-anywhere",
-              showLocalStatus && "pr-5",
-            )}
-          >
-            {message.text}
-          </BubbleContent>
-          {showLocalStatus ? (
-            <span className="absolute right-1.5 bottom-1 z-10 inline-flex">
-              <SendStatus
-                status={message.status}
-                onRetry={() => onRetry?.(message.clientMessageId)}
-              />
-            </span>
+        <span className="relative w-fit max-w-full">
+          {isOwnMessage ? (
+            <SketchRays className="pointer-events-none absolute -top-2 -right-1 size-4" />
           ) : null}
-        </Bubble>
-        {timestamp ? (
-          <MessageFooter>
-            <time dateTime={message.createdAt}>{timestamp}</time>
-          </MessageFooter>
-        ) : null}
+          <Bubble
+            variant={isOwnMessage ? "default" : "outline"}
+            align={align}
+            className="max-w-full"
+          >
+            <BubbleContent className="whitespace-pre-wrap wrap-anywhere">
+              {message.text}
+            </BubbleContent>
+          </Bubble>
+        </span>
+        <MessageFooter>
+          {timestamp ? (
+            <time className="font-hand" dateTime={message.createdAt}>
+              {timestamp}
+            </time>
+          ) : null}
+          {showLocalStatus ? (
+            <SendStatus
+              status={message.status}
+              onRetry={() => onRetry?.(message.clientMessageId)}
+            />
+          ) : null}
+        </MessageFooter>
       </MessageContent>
     </Message>
   )

@@ -2,11 +2,11 @@ import type { Conversation } from "@/types/conversation"
 
 /** Stable palette for `boring-avatars`. Module-level so it is not recreated per render. */
 export const AVATAR_COLORS: string[] = [
-  "#00ace5",
-  "#0074f7",
+  "#0098d4",
+  "#1d6fff",
   "#8a60ff",
-  "#00c3b2",
-  "#be64d2",
+  "#f0c49a",
+  "#2f9e5f",
 ]
 
 export const AVATAR_VARIANT = "beam" as const

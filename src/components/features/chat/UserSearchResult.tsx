@@ -33,8 +33,8 @@ export const UserSearchResult = memo(function UserSearchResult({
       aria-selected={isActive || isSelected}
       disabled={isPending}
       className={cn(
-        "flex w-full min-w-0 items-center gap-3 rounded-lg px-2 py-2 text-left outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring",
-        (isActive || isSelected) && "bg-muted",
+        "flex w-full min-w-0 items-center gap-3 rounded-[var(--radius-sketch)] border border-transparent px-2 py-2 text-left outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring",
+        (isActive || isSelected) && "marker-wash border-foreground/40 bg-accent",
       )}
       onClick={() => onSelect(user)}
     >

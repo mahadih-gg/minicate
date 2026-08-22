@@ -1,11 +1,17 @@
 "use client"
 
-import { MenuIcon, MessagesSquareIcon } from "lucide-react"
+import { MenuIcon } from "lucide-react"
 
 import { ChatPanel } from "@/components/features/chat/ChatPanel"
 import { ConnectionStatus } from "@/components/features/chat/ConnectionStatus"
 import { ConversationSidebar } from "@/components/features/chat/ConversationSidebar"
 import { CreateGroupDialog } from "@/components/features/chat/CreateGroupDialog"
+import {
+  SketchArrow,
+  SketchChatDoodle,
+  SketchStar,
+} from "@/components/common/sketch-marks"
+import { Highlighter } from "@/components/ui/highlighter"
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -37,7 +43,7 @@ export function ChatLayout() {
 
   return (
     <div
-      className="flex overflow-hidden bg-background"
+      className="flex overflow-hidden bg-background pb-[env(safe-area-inset-bottom)]"
       style={{ height: "var(--app-height, 100dvh)" }}
     >
       {isMobile ? (
@@ -60,17 +66,17 @@ export function ChatLayout() {
           </SheetContent>
         </Sheet>
       ) : (
-        <aside className="flex h-full w-72 shrink-0 flex-col border-r lg:w-80">
+        <aside className="flex h-full w-72 shrink-0 flex-col border-r border-foreground lg:w-80">
           {sidebar}
         </aside>
       )}
 
-      <section className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
+      <section className="relative flex h-full min-w-0 flex-1 flex-col overflow-hidden">
         {selectedConversationId ? (
           <ChatPanel />
         ) : (
           <>
-            <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
+            <header className="chat-shell-header w-full gap-2">
               {isMobile ? (
                 <Button
                   type="button"
@@ -82,23 +88,30 @@ export function ChatLayout() {
                   <MenuIcon />
                 </Button>
               ) : null}
-              <h1 className="truncate text-sm font-medium">Minicate</h1>
+              <h1 className="font-heading truncate text-xl tracking-tight">minicate</h1>
               <div className="ml-auto">
                 <ConnectionStatus />
               </div>
             </header>
-            <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-6">
-              <Empty>
+            <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden p-6">
+              <SketchStar className="absolute top-10 right-10 size-6 opacity-40 max-md:hidden" />
+              <Empty className="max-w-md">
                 <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <MessagesSquareIcon />
+                  <EmptyMedia variant="default">
+                    <SketchChatDoodle className="h-24 w-40" />
                   </EmptyMedia>
-                  <EmptyTitle>Select a conversation</EmptyTitle>
+                  <EmptyTitle>
+                    A quiet page, waiting for a{" "}
+                    <Highlighter action="underline" color="var(--brand-violet)">
+                      conversation
+                    </Highlighter>
+                  </EmptyTitle>
                   <EmptyDescription>
                     Choose someone from the list, or search by name or phone number.
                   </EmptyDescription>
                 </EmptyHeader>
               </Empty>
+              <SketchArrow className="absolute bottom-8 left-10 h-8 w-20 rotate-[-12deg] opacity-40 max-md:hidden" />
             </div>
           </>
         )}

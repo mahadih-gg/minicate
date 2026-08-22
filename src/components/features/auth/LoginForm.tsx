@@ -173,7 +173,7 @@ export function LoginForm() {
           <Button
             type="submit"
             size="lg"
-            className="mt-1 w-full bg-linear-to-r from-(--brand-cyan) via-(--brand-blue) to-(--brand-violet) text-primary-foreground hover:opacity-90"
+            className="mt-1 w-full bg-linear-to-br from-brand-cyan via-brand-blue to-brand-violet text-primary-foreground hover:opacity-90"
             disabled={isSubmitting}
           >
             {isSubmitting ? (

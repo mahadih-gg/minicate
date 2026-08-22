@@ -1,12 +1,13 @@
 "use client"
 
-import { UsersIcon } from "lucide-react"
+import { PlusIcon } from "lucide-react"
 
 import { ConversationList } from "@/components/features/chat/ConversationList"
 import { ConversationSearch } from "@/components/features/chat/ConversationSearch"
 import { SidebarProfileMenu } from "@/components/features/chat/SidebarProfileMenu"
 import { Button } from "@/components/ui/button"
 import { useConversationSidebar } from "@/hooks/use-conversation-sidebar"
+import Image from "next/image"
 
 export function ConversationSidebar() {
   const {
@@ -25,23 +26,28 @@ export function ConversationSidebar() {
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-sidebar">
-      <div className="flex items-center justify-between gap-2 border-b px-4 py-3">
-        <div className="min-w-0">
-          <p className="truncate font-heading text-base font-medium">Minicate</p>
-          <p className="truncate text-xs text-muted-foreground">Conversations</p>
+      <div className="chat-shell-header w-full justify-between gap-2">
+        <div>
+          <Image
+            src="/assets/images/minicate-full.png"
+            alt="Minicate"
+            width={150}
+            height={32}
+            className="w-4/5 h-auto"
+          />
         </div>
         <Button
           type="button"
-          variant="outline"
           size="sm"
           aria-label="Create group"
+          className="shrink-0 border-foreground bg-secondary text-secondary-foreground hover:bg-secondary/90"
           onClick={onCreateGroup}
         >
-          <UsersIcon data-icon="inline-start" />
-          Group
+          <PlusIcon data-icon="inline-start" />
+          Create Group
         </Button>
       </div>
-      <div className="flex flex-col gap-2 border-b p-3">
+      <div className="flex flex-col gap-2 border-b border-foreground p-3">
         <ConversationSearch
           excludeUserId={currentUserId}
           pendingUserId={pendingUserId}
@@ -63,7 +69,7 @@ export function ConversationSidebar() {
           onSelect={onSelect}
         />
       </div>
-      <div className="shrink-0 border-t p-2">
+      <div className="chat-shell-footer w-full">
         <SidebarProfileMenu />
       </div>
     </div>

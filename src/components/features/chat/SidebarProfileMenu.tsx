@@ -51,7 +51,7 @@ export function SidebarProfileMenu() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
-          className="flex w-full min-w-0 items-center gap-3 rounded-lg px-2 py-2 text-left outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex h-12 w-full min-w-0 items-center gap-3 rounded-[var(--radius-sketch)] border border-transparent px-2 text-left outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Open profile menu"
         >
           <UserAvatar seed={getAvatarSeed(user._id)} label={user.name} size="sm" />

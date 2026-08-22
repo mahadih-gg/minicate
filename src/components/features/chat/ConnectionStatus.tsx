@@ -11,19 +11,19 @@ const CONNECTED_VISIBLE_MS = 2500
 
 const STATUS_COPY: Record<
   ConnectionStatusValue,
-  { label: string; dotClass: string }
+  { label: string; textClass: string }
 > = {
   offline: {
     label: "Offline",
-    dotClass: "bg-destructive",
+    textClass: "text-status-offline",
   },
   connecting: {
     label: "Connecting",
-    dotClass: "bg-amber-500",
+    textClass: "text-status-connecting",
   },
   connected: {
     label: "Connected",
-    dotClass: "bg-emerald-500",
+    textClass: "text-status-connected",
   },
 }
 
@@ -51,7 +51,7 @@ export const ConnectionStatus = memo(function ConnectionStatus() {
     return null
   }
 
-  const { label, dotClass } = STATUS_COPY[connectionStatus]
+  const { label, textClass } = STATUS_COPY[connectionStatus]
   const canRetry = connectionStatus === "offline"
 
   return (
@@ -64,7 +64,8 @@ export const ConnectionStatus = memo(function ConnectionStatus() {
           : `Realtime status: ${label}`
       }
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-xs text-muted-foreground outline-none",
+        "animate-status-in inline-flex items-center gap-1.5 rounded-[10px_16px_8px_14px] border border-foreground bg-card px-2 py-1 font-hand text-sm leading-none outline-none shadow-[var(--shadow-sketch-sm)]",
+        textClass,
         canRetry && "hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring",
         !canRetry && "cursor-default",
       )}
@@ -76,7 +77,7 @@ export const ConnectionStatus = memo(function ConnectionStatus() {
         retryConnection()
       }}
     >
-      <span aria-hidden="true" className={cn("size-1.5 shrink-0 rounded-full", dotClass)} />
+      <span aria-hidden="true">•</span>
       <span aria-live="polite">{label}</span>
     </button>
   )

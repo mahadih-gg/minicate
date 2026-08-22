@@ -32,8 +32,9 @@ export const ConversationListItem = memo(function ConversationListItem({
       type="button"
       aria-current={isSelected ? "true" : undefined}
       className={cn(
-        "flex w-full min-w-0 items-center gap-3 rounded-lg border-l-2 border-transparent px-2 py-2 text-left outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring",
-        isSelected && "border-primary bg-secondary",
+        "flex w-full min-w-0 items-center gap-3 rounded-[var(--radius-sketch)] border border-transparent px-2 py-2 text-left outline-none transition-[background-color,border-color,box-shadow,transform] duration-150 hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring",
+        isSelected &&
+          "marker-wash border-foreground bg-accent shadow-[var(--shadow-sketch-sm)]",
       )}
       onClick={() => onSelect(conversation._id)}
     >
@@ -46,7 +47,7 @@ export const ConversationListItem = memo(function ConversationListItem({
           <span className="truncate text-sm font-medium">{title}</span>
           {timestamp ? (
             <time
-              className="shrink-0 text-[0.7rem] text-muted-foreground"
+              className="shrink-0 font-hand text-xs text-muted-foreground"
               dateTime={conversation.updatedAt}
             >
               {timestamp}

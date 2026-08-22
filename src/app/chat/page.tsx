@@ -19,7 +19,7 @@ export default function ChatPage() {
   if (!isReady) {
     return (
       <main className="flex min-h-dvh items-center justify-center px-4">
-        <p className="text-sm text-muted-foreground">Loading your session.</p>
+        <p className="font-hand text-lg text-muted-foreground">Loading your session.</p>
       </main>
     )
   }
@@ -27,7 +27,7 @@ export default function ChatPage() {
   if (!isAuthenticated) {
     return (
       <main className="flex min-h-dvh items-center justify-center px-4">
-        <p className="text-sm text-muted-foreground">Redirecting to sign in.</p>
+        <p className="font-hand text-lg text-muted-foreground">Redirecting to sign in.</p>
       </main>
     )
   }
