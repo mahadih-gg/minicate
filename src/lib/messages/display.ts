@@ -17,6 +17,17 @@ export function formatMessageTimestamp(createdAt: string): string {
   return format(date, "MMM d, p")
 }
 
+export function getMessageOwnershipLabel(
+  isOwnMessage: boolean,
+  senderName: string | null,
+): string {
+  if (isOwnMessage) {
+    return "You"
+  }
+
+  return senderName ?? "Other person"
+}
+
 export function getMessageSenderName(
   message: Message,
   conversation: Conversation,

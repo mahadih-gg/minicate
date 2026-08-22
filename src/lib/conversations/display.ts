@@ -1,3 +1,5 @@
+import { formatDistanceToNow } from "date-fns"
+
 import type { Conversation } from "@/types/conversation"
 
 export function getConversationTitle(conversation: Conversation): string {
@@ -26,6 +28,16 @@ export function getConversationPreview(conversation: Conversation): string {
   }
 
   return `${conversation.participants.length} people`
+}
+
+export function formatConversationUpdatedAt(updatedAt: string): string {
+  const date = new Date(updatedAt)
+
+  if (Number.isNaN(date.getTime())) {
+    return ""
+  }
+
+  return formatDistanceToNow(date, { addSuffix: true })
 }
 
 export function getInitials(name: string): string {

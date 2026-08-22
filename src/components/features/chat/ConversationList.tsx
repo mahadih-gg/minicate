@@ -77,12 +77,13 @@ export function ConversationList({
     <ScrollArea className="h-full">
       <div className="flex flex-col gap-1 p-2" role="list" aria-label="Conversations">
         {conversations.map((conversation) => (
-          <ConversationListItem
-            key={conversation._id}
-            conversation={conversation}
-            isSelected={conversation._id === selectedConversationId}
-            onSelect={onSelect}
-          />
+          <div key={conversation._id} role="listitem">
+            <ConversationListItem
+              conversation={conversation}
+              isSelected={conversation._id === selectedConversationId}
+              onSelect={onSelect}
+            />
+          </div>
         ))}
       </div>
     </ScrollArea>

@@ -4,11 +4,13 @@ export interface SendMessageRequest {
   text: string
 }
 
+export type MessageStatus = "sending" | "sent" | "failed"
+
 /**
  * Message object from `GET /conversations/{id}/messages` and `POST /messages`.
  * Swagger does not document response bodies; this shape was observed from the live API.
  */
-export interface Message {
+export interface ServerMessage {
   _id: string
   conversation: string
   sender: string
@@ -16,8 +18,17 @@ export interface Message {
   createdAt: string
 }
 
+/** Server/API message shape. Prefer `ServerMessage` at new call sites. */
+export type Message = ServerMessage
+
+/** Client list item: server fields plus local send state. */
+export interface ChatMessage extends ServerMessage {
+  clientMessageId: string
+  status: MessageStatus
+}
+
 /** Observed from `GET /conversations/{id}/messages`. */
 export interface MessagePage {
-  messages: Message[]
+  messages: ServerMessage[]
   hasMore: boolean
 }

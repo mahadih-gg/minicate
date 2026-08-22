@@ -9,69 +9,63 @@ import {
   InputGroupAddon,
   InputGroupTextarea,
 } from "@/components/ui/input-group"
-import { Spinner } from "@/components/ui/spinner"
 
 type MessageComposerProps = {
   disabled?: boolean
-  isSending: boolean
-  sendError: string | null
-  onSend: (text: string) => Promise<unknown>
+  onSend: (text: string) => void
 }
 
 export function MessageComposer({
   disabled = false,
-  isSending,
-  sendError,
   onSend,
 }: MessageComposerProps) {
   const [text, setText] = useState("")
-  const canSend = text.trim().length > 0 && !isSending && !disabled
+  const trimmed = text.trim()
+  const canSend = trimmed.length > 0 && !disabled
 
-  async function submit() {
+  function submit() {
     if (!canSend) {
       return
     }
 
-    const trimmed = text.trim()
+    const outgoing = trimmed
     setText("")
-
-    try {
-      await onSend(trimmed)
-    } catch {
-      setText(trimmed)
-    }
+    onSend(outgoing)
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    await submit()
+    submit()
   }
 
-  async function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+  function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.nativeEvent.isComposing || event.keyCode === 229) {
+      return
+    }
+
     if (event.key !== "Enter" || event.shiftKey) {
       return
     }
 
     event.preventDefault()
-    await submit()
+    submit()
   }
 
   return (
-    <form className="flex flex-col gap-2 border-t bg-background p-3" onSubmit={handleSubmit}>
-      {sendError ? (
-        <p className="text-sm text-destructive" role="alert">
-          {sendError}
-        </p>
-      ) : null}
+    <form
+      className="flex flex-col gap-2 border-t bg-background px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      onSubmit={handleSubmit}
+    >
       <InputGroup className="h-auto items-end">
         <InputGroupTextarea
           id="message-composer"
           name="message"
           rows={1}
           aria-label="Message"
+          aria-describedby="message-composer-hint"
           placeholder="Write a message"
           value={text}
-          disabled={disabled || isSending}
+          disabled={disabled}
           className="min-h-10 max-h-32 py-2.5"
           onChange={(event) => setText(event.target.value)}
           onKeyDown={handleKeyDown}
@@ -84,10 +78,13 @@ export function MessageComposer({
             disabled={!canSend}
             className="bg-linear-to-r from-(--brand-cyan) via-(--brand-blue) to-(--brand-violet) text-primary-foreground hover:opacity-90"
           >
-            {isSending ? <Spinner /> : <SendIcon />}
+            <SendIcon />
           </Button>
         </InputGroupAddon>
       </InputGroup>
+      <p id="message-composer-hint" className="text-xs text-muted-foreground">
+        Enter to send. Shift+Enter for a new line.
+      </p>
     </form>
   )
 }

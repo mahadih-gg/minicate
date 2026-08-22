@@ -4,6 +4,7 @@ import { useId, useState, type KeyboardEvent } from "react"
 import { SearchIcon, XIcon } from "lucide-react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
 import {
   InputGroup,
@@ -29,9 +30,15 @@ export function ConversationSearch({
   onSelectUser,
 }: ConversationSearchProps) {
   const listId = useId()
-  const { query, setQuery, results, status, error, isLoading, clear } =
+  const { query, setQuery, results, status, error, isLoading, clear, retry } =
     useUserSearch(excludeUserId)
   const [activeIndex, setActiveIndex] = useState(0)
+  const [indexedQuery, setIndexedQuery] = useState(query)
+
+  if (query !== indexedQuery) {
+    setIndexedQuery(query)
+    setActiveIndex(0)
+  }
   const safeActiveIndex =
     results.length === 0 ? 0 : Math.min(activeIndex, results.length - 1)
 
@@ -63,6 +70,7 @@ export function ConversationSearch({
       const user = results[safeActiveIndex]
       if (user) {
         onSelectUser(user)
+        clear()
       }
     }
   }
@@ -106,9 +114,14 @@ export function ConversationSearch({
       {showResults ? (
         <div className="flex flex-col gap-2">
           {error ? (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
+            <div className="flex flex-col gap-2">
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+              <Button type="button" variant="outline" size="sm" onClick={retry}>
+                Try again
+              </Button>
+            </div>
           ) : null}
 
           {isLoading ? (
@@ -140,7 +153,10 @@ export function ConversationSearch({
                     user={user}
                     isActive={index === safeActiveIndex}
                     isPending={pendingUserId === user._id}
-                    onSelect={onSelectUser}
+                    onSelect={(selectedUser) => {
+                      onSelectUser(selectedUser)
+                      clear()
+                    }}
                   />
                 ))}
               </div>

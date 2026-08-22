@@ -12,6 +12,7 @@ export function useUserSearch(excludeUserId?: string) {
   const [results, setResults] = useState<PublicUser[]>([])
   const [status, setStatus] = useState<SearchStatus>("idle")
   const [error, setError] = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
   const debouncedQuery = useDebouncedValue(query, 300)
   const trimmedQuery = debouncedQuery.trim()
 
@@ -55,13 +56,21 @@ export function useUserSearch(excludeUserId?: string) {
     return () => {
       controller.abort()
     }
-  }, [excludeUserId, trimmedQuery])
+  }, [excludeUserId, retryCount, trimmedQuery])
 
   function clear() {
     setQuery("")
     setResults([])
     setStatus("idle")
     setError(null)
+  }
+
+  function retry() {
+    if (!query.trim()) {
+      return
+    }
+
+    setRetryCount((current) => current + 1)
   }
 
   const isIdle = !query.trim()
@@ -74,5 +83,6 @@ export function useUserSearch(excludeUserId?: string) {
     error: isIdle ? null : error,
     isLoading: !isIdle && status === "loading",
     clear,
+    retry,
   }
 }

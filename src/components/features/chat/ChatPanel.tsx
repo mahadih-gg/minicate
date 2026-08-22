@@ -3,41 +3,44 @@
 import { ChatHeader } from "@/components/features/chat/ChatHeader"
 import { MessageComposer } from "@/components/features/chat/MessageComposer"
 import { MessageList } from "@/components/features/chat/MessageList"
-import { useConversationMessages } from "@/hooks/use-conversation-messages"
+import type { ChatSocketStatus } from "@/lib/websocket/types"
 import type { Conversation } from "@/types/conversation"
-import type { Message } from "@/types/message"
+import type { ChatMessage } from "@/types/message"
 
 type ChatPanelProps = {
   conversation: Conversation
   currentUserId: string
-  showMenu?: boolean
-  onOpenSidebar?: () => void
-  onMessageSent?: (message: Message) => void
+  messages: ChatMessage[]
+  isLoading: boolean
+  error: string | null
+  socketStatus: ChatSocketStatus
+  showBack?: boolean
+  onBack?: () => void
+  onRetry: () => void
+  onRetryMessage: (clientMessageId: string) => void
+  onSend: (text: string) => void
 }
 
 export function ChatPanel({
   conversation,
   currentUserId,
-  showMenu,
-  onOpenSidebar,
-  onMessageSent,
+  messages,
+  isLoading,
+  error,
+  socketStatus,
+  showBack,
+  onBack,
+  onRetry,
+  onRetryMessage,
+  onSend,
 }: ChatPanelProps) {
-  const { messages, error, isLoading, isSending, sendError, send, reload } =
-    useConversationMessages(conversation._id)
-
-  async function handleSend(text: string) {
-    const sent = await send(text)
-    if (sent) {
-      onMessageSent?.(sent)
-    }
-  }
-
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
       <ChatHeader
         conversation={conversation}
-        showMenu={showMenu}
-        onOpenSidebar={onOpenSidebar}
+        showBack={showBack}
+        socketStatus={socketStatus}
+        onBack={onBack}
       />
       <MessageList
         key={conversation._id}
@@ -46,13 +49,10 @@ export function ChatPanel({
         messages={messages}
         isLoading={isLoading}
         error={error}
-        onRetry={reload}
+        onRetry={onRetry}
+        onRetryMessage={onRetryMessage}
       />
-      <MessageComposer
-        isSending={isSending}
-        sendError={sendError}
-        onSend={handleSend}
-      />
+      <MessageComposer key={`${conversation._id}-composer`} onSend={onSend} />
     </div>
   )
 }

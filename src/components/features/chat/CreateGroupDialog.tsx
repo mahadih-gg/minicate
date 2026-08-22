@@ -40,7 +40,7 @@ export function CreateGroupDialog({
   onOpenChange,
   onCreated,
 }: CreateGroupDialogProps) {
-  const { query, setQuery, results, error, isLoading, clear } =
+  const { query, setQuery, results, error, isLoading, clear, retry } =
     useUserSearch(excludeUserId)
   const [name, setName] = useState("")
   const [participants, setParticipants] = useState<PublicUser[]>([])
@@ -117,7 +117,7 @@ export function CreateGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md" showCloseButton={!isSubmitting}>
+      <DialogContent className="max-h-[min(90dvh,40rem)] overflow-y-auto sm:max-w-md" showCloseButton={!isSubmitting}>
         <DialogHeader>
           <DialogTitle>New group</DialogTitle>
           <DialogDescription>
@@ -155,8 +155,8 @@ export function CreateGroupDialog({
           {participants.length > 0 ? (
             <div className="flex flex-wrap gap-2" aria-label="Selected people">
               {participants.map((user) => (
-                <Badge key={user._id} variant="secondary">
-                  {user.name}
+                <Badge key={user._id} variant="secondary" className="max-w-full">
+                  <span className="truncate">{user.name}</span>
                   <button
                     type="button"
                     className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -188,9 +188,14 @@ export function CreateGroupDialog({
               onChange={(event) => setQuery(event.target.value)}
             />
             {error ? (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
+              <div className="flex flex-col gap-2">
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+                <Button type="button" variant="outline" size="sm" onClick={retry}>
+                  Try again
+                </Button>
+              </div>
             ) : null}
             {isLoading ? (
               <div className="flex flex-col gap-2">
@@ -198,7 +203,7 @@ export function CreateGroupDialog({
                 <Skeleton className="h-10 w-full" />
               </div>
             ) : null}
-            {!isLoading && query.trim() && visibleResults.length === 0 ? (
+            {!isLoading && !error && query.trim() && visibleResults.length === 0 ? (
               <Empty className="border p-3">
                 <EmptyHeader>
                   <EmptyTitle>No people found</EmptyTitle>
